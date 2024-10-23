@@ -9,7 +9,7 @@ from pybricks.tools import wait, StopWatch
 ev3= EV3Brick()
 middle_motor= Motor(Port.B)
 right_motor = Motor(Port.C)
-left_motor = Motor(Port.A)
+left_motor = Motor(Port.D)
 
 localizacao = [1,1]
 direcao = "frente"
@@ -64,12 +64,3 @@ def rodar_esquerda():
         direcao = "frente"
 
 
-
-
-andar()
-wait(2000)
-rodar_direita()
-wait(1000)
-andar()
-wait(1000)
-rodar_esquerda()

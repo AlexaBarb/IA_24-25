@@ -12,8 +12,8 @@ https://education.lego.com/en-us/support/mindstorms-ev3/building-instructions#bu
 """
 from pybricks import ev3brick as brick
 from pybricks.hubs import EV3Brick 
-from pybricks.ev3devices import Motor, InfraredSensor
-from pybricks.parameters import Port, Direction
+from pybricks.ev3devices import Motor, InfraredSensor,ColorSensor
+from pybricks.parameters import Port, Direction,Color
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait, StopWatch
 from pybricks.media.ev3dev import SoundFile, ImageFile
@@ -22,9 +22,35 @@ from random import randint
 ev3= EV3Brick()
 middle_motor= Motor(Port.B)
 right_motor = Motor(Port.C)
-left_motor = Motor(Port.A)
+left_motor = Motor(Port.D)
+colorSensor = ColorSensor(Port.S2)
+
+def color():
+    contador = 0
+    while contador < 10:
+        if colorSensor.color() == Color.YELLOW:
+            middle_motor.run(1000)
+            wait(1000)
+            middle_motor.stop()
+            ev3.speaker.beep(400, 100)  # C
+            wait(100)
+            ev3.speaker.beep(400, 100)  # C
+            wait(100)
+            ev3.speaker.beep(470, 100)  # C
+            wait(100)
+            middle_motor.run(-1000)
+            wait(1000)
+            middle_motor.stop()
+        contador += 1
+    
+
+
+    
+
 
 '''
+
+
 middle_motor.run(1000)
 wait(2000)
 middle_motor.stop()
@@ -72,7 +98,7 @@ left_motor.run_angle(1000,900)
 middle_motor.run(-1000)
 wait(2000)
 middle_motor.stop()
-'''
+
 
 # Lista que armazenará os símbolos associados às cores detetadas (por exemplo, "+", "*", etc.).
 pecas = []
@@ -166,13 +192,23 @@ while True:
         right_motor.stop()
 
 # movimento
-
-speed = 500
-
+'''
+speed = 250
+direcao = ""
 def andar():
-    left_motor.run(speed)
-    right_motor.run(speed)
-    wait(1850)
+    left_motor.run(speed/2)
+    right_motor.run(speed/2)
+    wait(3700)
+    if colorSensor.color()== Color.RED:
+        left_motor.stop()
+        right_motor.stop()
+        left_motor.run(-speed/2)
+        right_motor.run(-speed/2)
+        wait(1850)
+        left_motor.stop()
+        right_motor.stop()
+        rodar_direita()
+    wait(3800)
     left_motor.stop()
     right_motor.stop()
     if direcao == "frente":
@@ -185,12 +221,17 @@ def andar():
         localizacao[0] -= 1
 
 def rodar_direita():
-    left_motor.run(speed)
-    right_motor.run(speed)
+    left_motor.run(-speed*2)
+    right_motor.run(-speed*2)
     wait(700)
     left_motor.stop()
     right_motor.stop()
-    left_motor.run_angle(1000, -680)
+    right_motor.run_angle(1000, 700)
+    left_motor.run(-speed*2)
+    right_motor.run(-speed*2)
+    wait(700)
+    left_motor.stop()
+    right_motor.stop()
     if direcao == "frente":
         direcao = "direita"
     if direcao == "direita":
@@ -201,12 +242,17 @@ def rodar_direita():
         direcao = "frente"
 
 def rodar_esquerda():
-    left_motor.run(speed)
-    right_motor.run(speed)
+    left_motor.run(-speed*2)
+    right_motor.run(-speed*2)
     wait(700)
     left_motor.stop()
     right_motor.stop()
-    right_motor.run_angle(1000, -680)
+    left_motor.run_angle(1000, 700)
+    left_motor.run(-speed*2)
+    right_motor.run(-speed*2)
+    wait(700)
+    left_motor.stop()
+    right_motor.stop()
     if direcao == "frente":
         direcao = "esquerda"
     if direcao == "esquerda":
@@ -216,13 +262,8 @@ def rodar_esquerda():
     if direcao == "direita":
         direcao = "frente"
 
-leituraObjetos()
-print(detetaCorPecas())
 
 andar()
-wait(2000)
-rodar_direita()
-wait(1000)
 andar()
-wait(1000)
-rodar_esquerda()
+color()
+rodar_direita()

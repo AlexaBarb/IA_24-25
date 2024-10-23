@@ -13,8 +13,7 @@ middle_motor= Motor(Port.B)
 right_motor = Motor(Port.C)
 left_motor = Motor(Port.A)
 
-Cor_Sensor = ColorSensor(Port.S1)
-
+'''
 #cor barreiras -> vermelho
 #cor linhas -> preto
 #cor limitação de ambiente -> verde
