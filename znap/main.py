@@ -27,13 +27,14 @@ left_motor = Motor(Port.D)
 #inicialização do sensor de cor
 colorSensor = ColorSensor(Port.S2)
 distanciaSensor = UltrasonicSensor(Port.S1)
+
+#inicialização de variavel para começar o jogo
+novo_jogo = True
+
 #------------------------------------------------------------------------------------------------------> 
-#                                       Movimento Inicial 
+#       Função Deteta_agarra_manteiga deteta a manteiga e agarra-a
 #------------------------------------------------------------------------------------------------------> 
-#------------------------------------------------------------------------------------------------------> 
-#                                    dETE
-#------------------------------------------------------------------------------------------------------> 
-def color():
+def Deteta_agarra_manteiga():
     if colorSensor.color() == Color.YELLOW:
         # Limpar a tela antes de desenhar
         ev3.screen.clear()
@@ -53,7 +54,13 @@ def color():
     else:
         # Limpar a tela antes de desenhar
         ev3.screen.clear()
-        ev3.screen.draw_text(50, 60, "A procura da Mant")
+        ev3.screen.draw_text(50, 60, "A procura da Manteiga")
+
+#---------------------------------------------------fim Deteta_agarra_manteiga-------------------------> 
+
+#------------------------------------------------------------------------------------------------------> 
+#       Função emoji_triste desenha emogi triste na tela do ev3
+#------------------------------------------------------------------------------------------------------>  
 
 def emoji_triste():
         # Limpar a tela antes de desenhar
@@ -74,53 +81,72 @@ def emoji_triste():
         # Sobrancelha direita
         ev3.screen.draw_line(110, 40, 130, 30)
 
+#---------------------------------------------------fim emoji_triste----------------------------------> 
 
-#cor barreiras -> vermelho
-#cor linhas -> preto
-#cor manteiga -> amarelo
-#cor torradeira -> azul 
 
 #------------------------------------------------------------------------------------------------------> 
 #                                       Movimento Inicial 
 #------------------------------------------------------------------------------------------------------> 
 
-localizacao = [1,1]     #localização inicial no ambiente
-direcao = "frente"
-dirCode = 1             #codigo da direção atual, 1=esquerda, 2=frente, 3=direita e 4=atras
-speed = 250             #velocidade inicial
-nextDir = ""            #proxima direção
-nextDirCode = 0         #código da proxima 
+#def Inicio():
+    localizacao = [1,1]     #localização inicial no ambiente [0] ->linha [0] -> coluna
+    direcao = "frente"
+    dirCode = 2             #codigo da direção atual, 1=esquerda, 2=frente, 3=direita e 4=atras
+    speed = 250             #velocidade inicial
+    nextDir = ""            #proxima direção
+    nextDirCode = 0         #código da proxima 
+#---------------------------------------------------fim Inicio------------------------------------------> 
 
+#------------------------------------------------------Nota--------------------------------------------->
+#cor barreiras -> vermelho
+#cor linhas -> preto
+#cor manteiga -> amarelo
+#cor torradeira -> azul 
+#---------------------------------------------------fim nota-------------------------------------------->
 #------------------------------------------------------------------------------------------------------> 
-#                           Função pode Andar returna um booleano e recebe uma string com a direção 
+# Função podeAndar retorna um booleano e recebe uma string com a direção a testar se pode andar
 #------------------------------------------------------------------------------------------------------> 
 def podeAndar(direcao): #função que verifica se é possível andar na direção indicada
-    if localizacao[0] == 1 and direcao == "esquerda":
+    if localizacao[0] == 1 and direcao == "esquerda": #se encontra-se no 1 quadrado/primeira linha e testa para a esquerda
+        return False #fora dos limites do ambiente
+    elif localizacao[1] == 6 and direcao == "frente": #se encontra-se no 6 quadrado/ ultima coluna e testa para a frente  
         return False
-    elif localizacao[1] == 6 and direcao == "frente":
+    elif localizacao[0] == 6 and direcao == "direita": #se encontra-se no 6 quadrado/ultima linha e testa para a direita
         return False
-    elif localizacao[0] == 6 and direcao == "direita":
-        return False
-    elif localizacao[1] == 1 and direcao == "atras":
+    elif localizacao[1] == 1 and direcao == "atras": #se encontra-se no 1 quadrado/ primeira coluna e testa para atrás 
         return False
     else:
         return True
+    #---------------------------------------------------fim podeAndar------------------------------------>    
 
+#-------------------------------------------------------------------------------------------------------->
+#   Função modulo recebe um valor e retorna o valor absoluto 
+#-------------------------------------------------------------------------------------------------------->
 def modulo(a):
     if a < 0:
         return -a
     else:
         return a
+#---------------------------------------------------fim modulo------------------------------------------>
 
+#------------------------------------------------------------------------------------------------------>
+# Função temAlgoAqui retorna um booleano e verifica se há algo a frente
+#------------------------------------------------------------------------------------------------------>
 def temAlgoAqui(): #435 normal
-    if distanciaSensor.distance(silent=True) != 435: 
+    if distanciaSensor.distance(silent=True) != 435:  #se o sensor de distância detetar algo
         return True
     else:
         return False
+#---------------------------------------------------fim temAlgoAqui------------------------------------>
 
-# Função que controla o movimento do robô em uma direção específica
 
-# Função que faz o robo girar à direita e atualiza a direção
+#------------------------------------------------------------------------------------------------------>
+#                           Função que controla o movimento do robô em uma direção específica
+#------------------------------------------------------------------------------------------------------>
+
+#------------------------------------------------------------------------------------------------------>
+# Função rodar_direita que faz o robo girar à direita e atualiza a direção
+#------------------------------------------------------------------------------------------------------>
 def rodar_direita():
     global direcao
     global dirCode
@@ -148,14 +174,14 @@ def rodar_direita():
         direcao = "esquerda"
         dirCode = 1 #norte
 
- # se o robo estava virado para a frente fica virado para a diesquerda
- # 
- # 
- 
+ # se o robo estava virado para a frente fica virado para a esquerda
 
-#-------------------------------------------------------------------------------------> 
+ #---------------------------------------------------fim rodar_direita----------------------------------->
+ 
+ 
+#--------------------------------------------------------------------------------------------------------> 
 # Função rodar_esquerda 
-#------------------------------------------------------------------------------------------------------>
+#-------------------------------------------------------------------------------------------------------->
 def rodar_esquerda():
     #
     left_motor.run(-speed*2) 
@@ -184,8 +210,10 @@ def rodar_esquerda():
     if direcao == "direita":
         direcao = "frente"
 
+#---------------------------------------------------fim rodar_esquerda--------------------------------->
+
 #------------------------------------------------------------------------------------------------------> 
-# Função randDir retorna a próxima direção 
+# Função randDir retorna a próxima direção a se movimentar aleatoriamente 
 #------------------------------------------------------------------------------------------------------>
 def randDir():
     nextDir=""
@@ -201,6 +229,11 @@ def randDir():
         nextDir == "atras"        #sul
     return nextDir
 
+#---------------------------------------------------fim randDir------------------------------------------>
+
+#-------------------------------------------------------------------------------------------------------->
+# Função anda que faz o robô andar para a próxima direção
+#-------------------------------------------------------------------------------------------------------->
 def andar(nextDir):
     if podeAndar(nextDir):
         if modulo(nextDirCode - dirCode) == 1:
@@ -240,9 +273,45 @@ def andar(nextDir):
         color()
     else:
         ev3.speaker.beep(400, 100)
+#---------------------------------------------------fim andar--------------------------------------------->
 
-
+#-------------------------------------------------------------------------------------------------------->
+# Ciclo de teste de código
+#-------------------------------------------------------------------------------------------------------->
 while True:
+    Deteta_agarra_manteiga()
     ran = randDir()
     andar(ran)
     
+
+# while True:
+    
+#     if novo_jogo == True:
+#         localizacao = [1,1]     #localização inicial no ambiente [0] ->linha [0] -> coluna
+#         direcao = "frente"
+#         dirCode = 2             #codigo da direção atual, 1=esquerda, 2=frente, 3=direita e 4=atras
+#         speed = 250             #velocidade inicial
+#         nextDir = ""            #proxima direção
+#         nextDirCode = 0         #código da proxima 
+        
+   
+#         podeAndar(direcao)
+
+#         Deteta_agarra_manteiga()
+
+#         randDir()
+
+#         podeAndar(direcao)
+        
+#         #rodar_direita()
+#         #rodar_esquerda()
+#         #andar(nextDir)
+        
+#         #temAlgoAqui()
+#         #ran = randDir()
+#         #andar(ran)
+        
+#     if game_over == True
+#     novo_jogo = True
+    
+#nota: falta ver barreira/torradeira/bolor como escrevemos no código       
