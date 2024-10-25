@@ -89,12 +89,12 @@ def emoji_triste():
 #------------------------------------------------------------------------------------------------------> 
 
 #def Inicio():
-    localizacao = [1,1]     #localização inicial no ambiente [0] ->linha [0] -> coluna
-    direcao = "frente"
-    dirCode = 2             #codigo da direção atual, 1=esquerda, 2=frente, 3=direita e 4=atras
-    speed = 250             #velocidade inicial
-    nextDir = ""            #proxima direção
-    nextDirCode = 0         #código da proxima 
+localizacao = [1,1]     #localização inicial no ambiente [0] ->linha [0] -> coluna
+direcao = "frente"
+dirCode = 2             #codigo da direção atual, 1=esquerda, 2=frente, 3=direita e 4=atras
+speed = 250             #velocidade inicial
+nextDir = ""            #proxima direção
+nextDirCode = 0         #código da proxima
 #---------------------------------------------------fim Inicio------------------------------------------> 
 
 #------------------------------------------------------Nota--------------------------------------------->
@@ -155,6 +155,7 @@ def rodar_direita():
     wait(700) # Espera 700 ms
     left_motor.stop()
     right_motor.stop()
+
     right_motor.run_angle(1000, 700)
     left_motor.run(-speed*2)
     right_motor.run(-speed*2)
@@ -183,6 +184,8 @@ def rodar_direita():
 # Função rodar_esquerda 
 #-------------------------------------------------------------------------------------------------------->
 def rodar_esquerda():
+    global direcao
+    global dirCode
     #
     left_motor.run(-speed*2) 
     right_motor.run(-speed*2)
@@ -224,9 +227,9 @@ def randDir():
     if nextDirCode == 1:          
         nextDir = "esquerda"      #oeste
     if nextDirCode == 3:
-        nextDir == "direita"      #este
+        nextDir = "direita"      #este
     if nextDirCode == 4:
-        nextDir == "atras"        #sul
+        nextDir = "atras"        #sul
     return nextDir
 
 #---------------------------------------------------fim randDir------------------------------------------>
@@ -249,15 +252,15 @@ def andar(nextDir):
         right_motor.run(speed/2)
         wait(3700)
         if temAlgoAqui() == True:
-            colorSensor.color()== Color.RED
-            left_motor.stop()
-            right_motor.stop()
-            left_motor.run(-speed/2)
-            right_motor.run(-speed/2)
-            wait(1850)
-            left_motor.stop()
-            right_motor.stop()
-            rodar_direita()
+            if colorSensor.color()== Color.RED:
+                left_motor.stop()
+                right_motor.stop()
+                left_motor.run(-speed/2)
+                right_motor.run(-speed/2)
+                wait(1850)
+                left_motor.stop()
+                right_motor.stop()
+                rodar_direita()
         
         wait(3800)
         left_motor.stop()
@@ -270,7 +273,7 @@ def andar(nextDir):
                 localizacao[1] -= 1
         elif direcao == "esquerda":
                 localizacao[0] -= 1
-        color()
+        Deteta_agarra_manteiga()
     else:
         ev3.speaker.beep(400, 100)
 #---------------------------------------------------fim andar--------------------------------------------->
@@ -279,7 +282,6 @@ def andar(nextDir):
 # Ciclo de teste de código
 #-------------------------------------------------------------------------------------------------------->
 while True:
-    Deteta_agarra_manteiga()
     ran = randDir()
     andar(ran)
     
