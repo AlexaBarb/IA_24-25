@@ -1,6 +1,8 @@
 #!/usr/bin/env pybricks-micropython
 
-#imports das bibliotecas necessárias
+#------------------------------------------------------------------------------------------------------> 
+#                           imports das bibliotecas necessárias
+#------------------------------------------------------------------------------------------------------> 
 from pybricks import ev3brick as brick
 from pybricks.hubs import EV3Brick 
 from pybricks.ev3devices import Motor, InfraredSensor,ColorSensor
@@ -10,6 +12,10 @@ from pybricks.tools import wait, StopWatch
 from pybricks.media.ev3dev import SoundFile, ImageFile
 from random import randint
 
+
+#------------------------------------------------------------------------------------------------------> 
+#                                       inicializações 
+#--------------------------------------------------------------------------------------->
 #criação de uma instancia do módulo principal 
 ev3= EV3Brick()
 
@@ -18,96 +24,58 @@ middle_motor= Motor(Port.B)
 right_motor = Motor(Port.C)
 left_motor = Motor(Port.D)
 
+#inicialização do sensor de cor
 colorSensor = ColorSensor(Port.S2)
 
-def color():
-    contador = 0
-    while contador < 10:
-        if colorSensor.color() == Color.YELLOW:
-            middle_motor.run(1000)
-            wait(1000)
-            middle_motor.stop()
-            ev3.speaker.beep(400, 100)  # C
-            wait(100)
-            ev3.speaker.beep(400, 100)  # C
-            wait(100)
-            ev3.speaker.beep(470, 100)  # C
-            wait(100)
-            middle_motor.run(-1000)
-            wait(1000)
-            middle_motor.stop()
-        contador += 1
-    
-'''
-# Deteta a cor das peças passadas e adiciona no array das peças
-def detetaCorPecas():
-    # Lê o nome da cor
-    corDetetada = detetaCor()
-    # Imprime a cor lida
-    print('Cor detectada: ' + corDetetada)
-
-    # Adiciona a peça no array dependendo da cor
-    if corDetetada == 'Verde':
-        pecas.append("+")
-        ev3.speaker.say("Green")
-        
-    elif corDetetada == 'Vermelho':
-        pecas.append("*")
-        ev3.speaker.say("Red")
-        
-    elif corDetetada == 'Amarelo':
-        pecas.append("0")
-        ev3.speaker.say("Yellow")
-        
-    elif corDetetada == 'Azul':
-        pecas.append("-")
-        ev3.speaker.say("Blue")
-
-# Período da deteção de peças            
-def leituraObjetos():
-    # Enquanto está no período de deteção
-    while True:
-        # Deteta e guarda as peças
-        detetaCorPecas()
-        # Espera 2 segundos
-        wait(2000)
-
-localizacao = [1,1]
-direcao = "frente"
-'''
 #cor barreiras -> vermelho
 #cor linhas -> preto
 #cor manteiga -> amarelo
+#cor torradeira -> azul 
 
-while True:
-    print(cor=colorSensor.color())
-    #Se o sensor de cor detectar a cor preta, o robô andará para frente
-    if colorSensor.color() == colorSensor.COLOR_BLACK:
-        speed = 500
-        left_motor.run(speed)
-        right_motor.run(speed)
-        wait(5000)
-        left_motor.stop()
-        right_motor.stop()
-    #Se o sensor de cor detectar outra cor, da uma volta 
-    elif colorSensor.color() == None :
-        left_motor.run_angle(1000,-900)
-        left_motor.stop()
-        right_motor.stop()
-    #Se o sensor de cor detectar a cor vermelha/barreira, o robô dará uma volta
-    elif colorSensor.color() == colorSensor.COLOR_RED :
-        left_motor.run_angle(1000,900)
-        left_motor.stop()
-        right_motor.stop()
-    elif colorSensor.color() == colorSensor.COLOR_BROWN:
-        left_motor.run_angle(1000,900)
-        left_motor.stop()
-        right_motor.stop()
+#------------------------------------------------------------------------------------------------------> 
+#                                    Detetar Manteiga e a agarrar
 
-# movimento
+# e frequência de aviso que agarrou a manteiga
+#------------------------------------------------------------------------------------------------------> 
 
-speed = 250
-direcao = ""
+def Deteta_agarra_manteiga():
+    if colorSensor.color() == Color.YELLOW:
+        #Desenha na tela do ev3
+        ev3.screen.draw_text(50, 60, "Manteiga Detetada!")
+
+        middle_motor.run(1000)
+        wait(1000)
+        middle_motor.stop()
+        ev3.speaker.beep(400, 100)  # C
+        wait(100)
+        ev3.speaker.beep(400, 100)  # C
+        wait(100)
+        ev3.speaker.beep(470, 100)  # C
+        wait(100)
+        middle_motor.run(-1000)
+        wait(1000)
+        middle_motor.stop()
+    else  
+        ev3.screen.draw_text(50, 60, "Á procura da Manteiga")   
+
+        
+    
+#------------------------------------------------------------------------------------------------------> 
+#                                       Movimento Inicial 
+#------------------------------------------------------------------------------------------------------> 
+
+localizacao = [1,1] #localização inicial
+direcao = "frente"  #direção inicial
+speed = 250 #velocidade inicial 
+
+def podeAndar(direcao):
+    if(localizacao[0] == 1 and direcao == "esquerda"):
+        return False
+    if(localizacao[1] == 6 and direcao == "frente"):
+        rcalizacao[]eturn False
+    if(localizacao[0] == 6 and direcao == "direita"):
+        return False
+    if(l)
 
 def andar():
     left_motor.run(speed/2)
