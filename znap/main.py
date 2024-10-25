@@ -35,6 +35,9 @@ distanciaSensor = UltrasonicSensor(Port.S1)
 #------------------------------------------------------------------------------------------------------> 
 def color():
     if colorSensor.color() == Color.YELLOW:
+        # Limpar a tela antes de desenhar
+        ev3.screen.clear()
+        ev3.screen.draw_text(50, 60, "YAY Manteiga encontrada")
         middle_motor.run(1000)
         wait(1000)
         middle_motor.stop()
@@ -47,7 +50,30 @@ def color():
         middle_motor.run(-1000)
         wait(1000)
         middle_motor.stop()
-    
+    else:
+        # Limpar a tela antes de desenhar
+        ev3.screen.clear()
+        ev3.screen.draw_text(50, 60, "A procura da Mant")
+
+def emoji_triste():
+        # Limpar a tela antes de desenhar
+        ev3.screen.clear()
+
+        # Desenhar os olhos (círculos)
+        # Olho esquerdo
+        ev3.screen.draw_circle(60, 50, 10, fill=True)
+        # Olho direito
+        ev3.screen.draw_circle(120, 50, 10, fill=True)
+
+        # Desenhar a boca (arco invertido para parecer triste)
+        ev3.screen.draw_arc(90, 100, 30, 180, 360)  # X, Y, raio, ângulo inicial, ângulo final
+
+        # (Opcional) Desenhar sobrancelhas inclinadas para dar expressão triste
+        # Sobrancelha esquerda
+        ev3.screen.draw_line(50, 30, 70, 40)
+        # Sobrancelha direita
+        ev3.screen.draw_line(110, 40, 130, 30)
+
 
 #cor barreiras -> vermelho
 #cor linhas -> preto
@@ -58,13 +84,16 @@ def color():
 #                                       Movimento Inicial 
 #------------------------------------------------------------------------------------------------------> 
 
-localizacao = [1,1] #localização inicial
+localizacao = [1,1]     #localização inicial no ambiente
 direcao = "frente"
-dirCode = 1 #codigo da direção atual, 1=esquerda, 2=frente, 3=direita e 4=atras
-speed = 250
-nextDir = "" #proxima direção
-nextDirCode = 0 #código da proxima 
+dirCode = 1             #codigo da direção atual, 1=esquerda, 2=frente, 3=direita e 4=atras
+speed = 250             #velocidade inicial
+nextDir = ""            #proxima direção
+nextDirCode = 0         #código da proxima 
 
+#------------------------------------------------------------------------------------------------------> 
+#                           Função pode Andar returna um booleano e recebe uma string com a direção 
+#------------------------------------------------------------------------------------------------------> 
 def podeAndar(direcao): #função que verifica se é possível andar na direção indicada
     if localizacao[0] == 1 and direcao == "esquerda":
         return False
@@ -83,86 +112,69 @@ def modulo(a):
     else:
         return a
 
-
-
-def andar(nextDir):
-    if podeAndar(nextDir):
-        if modulo(nextDirCode - dirCode) == 1:
-            if nextDir == "esquerda":
-                rodar_esquerda()
-            else:
-                rodar_direita()
-        elif modulo(nextDir - dirCode) == 2:
-            rodar_direita()
-            rodar_direita()
-
-        left_motor.run(speed/2)
-        right_motor.run(speed/2)
-        wait(3700)
-            colorSensor.color()== Color.RED:
-            left_motor.stop()
-            right_motor.stop()
-            left_motor.run(-speed/2)
-            right_motor.run(-speed/2)
-            wait(1850)
-            left_motor.stop()
-            right_motor.stop()
-            rodar_direita()
-        wait(3800)
-        left_motor.stop()
-        right_motor.stop()
-            direcao == "frente":
-            localizacao[1] += 1
-            direcao == "direita":
-            localizacao[0] += 1
-            direcao == "atras":
-            localizacao[1] -= 1
-            direcao == "esquerda":
-            localizacao[0] -= 1
-            color()
+def temAlgoAqui(): #435 normal
+    if distanciaSensor.distance(silent=True) != 435: 
+        return True
     else:
-        ev3.speaker.beep(400, 100)
+        return False
 
+# Função que controla o movimento do robô em uma direção específica
+
+# Função que faz o robo girar à direita e atualiza a direção
 def rodar_direita():
+    global direcao
+    global dirCode
     left_motor.run(-speed*2)
     right_motor.run(-speed*2)
-    wait(700)
+    wait(700) # Espera 700 ms
     left_motor.stop()
     right_motor.stop()
     right_motor.run_angle(1000, 700)
     left_motor.run(-speed*2)
     right_motor.run(-speed*2)
-    wait(700)
+    wait(700) # Espera 700 ms
     left_motor.stop()
     right_motor.stop()
-    if direcao == "frente":
+    if direcao == "frente":  # se o robo estava virado para a frente fica virado para a direita
         direcao = "direita"
-        dirCode = 3
-    if direcao == "direita":
+        dirCode = 3 #sul 
+    if direcao == "direita": # se o robo estava virado para a direita fica virado para a trás
         direcao = "atras"
-        dirCode = 4
-    if direcao == "atras":
-        direcao = "esquerda"
-        dirCode = 1
+        dirCode = 4 #oeste
     if direcao == "esquerda":
         direcao = "frente"
-        dirCode = 2
+        dirCode = 2 #este
+    if direcao == "atras": # se o robo estava virado para trás fica virado para a esquerda
+        direcao = "esquerda"
+        dirCode = 1 #norte
 
-#------------------------------------------------------------------------------------------------------> 
+ # se o robo estava virado para a frente fica virado para a diesquerda
+ # 
+ # 
+ 
+
+#-------------------------------------------------------------------------------------> 
 # Função rodar_esquerda 
 #------------------------------------------------------------------------------------------------------>
 def rodar_esquerda():
-    left_motor.run(-speed*2) #
+    #
+    left_motor.run(-speed*2) 
     right_motor.run(-speed*2)
     wait(700)
     left_motor.stop()
     right_motor.stop()
+    
+    #
     left_motor.run_angle(1000, 700)
     left_motor.run(-speed*2)
     right_motor.run(-speed*2)
     wait(700)
+
+    #para de andar
     left_motor.stop()
     right_motor.stop()
+
+    #atualizar a direcao depois de virar
     if direcao == "frente":
         direcao = "esquerda"
     if direcao == "esquerda":
@@ -176,16 +188,61 @@ def rodar_esquerda():
 # Função randDir retorna a próxima direção 
 #------------------------------------------------------------------------------------------------------>
 def randDir():
-    nextDirCode = randint(4) + 1 # guarda um número aletório de 0 a 4 + 1 ou seja, de 1 a 5  if nextDirCode == 2:
+    nextDir=""
+    nextDirCode = randint(1,4) # guarda um número aletório de 0 a 4 + 1 ou seja, de 1 a 5 
+    #codigo da direção atual, 1=esquerda, 2=frente, 3=direita e 4=atras 
+    if nextDirCode == 2:
         nextDir = "frente"        # norte 
-    if nextDirCode == 1:
-        nextDir = "esquerda"      #
+    if nextDirCode == 1:          
+        nextDir = "esquerda"      #oeste
     if nextDirCode == 3:
-        nextDir == "direita"
+        nextDir == "direita"      #este
     if nextDirCode == 4:
-        nextDir == "atras"
+        nextDir == "atras"        #sul
     return nextDir
 
+def andar(nextDir):
+    if podeAndar(nextDir):
+        if modulo(nextDirCode - dirCode) == 1:
+            if nextDir == "esquerda":
+                rodar_esquerda()
+            else:
+                rodar_direita()
+        elif modulo(nextDirCode - dirCode) == 2:
+            rodar_direita()
+            rodar_direita()  # Gira duas vezes para mudar 180°
+
+        left_motor.run(speed/2)
+        right_motor.run(speed/2)
+        wait(3700)
+        if temAlgoAqui() == True:
+            colorSensor.color()== Color.RED
+            left_motor.stop()
+            right_motor.stop()
+            left_motor.run(-speed/2)
+            right_motor.run(-speed/2)
+            wait(1850)
+            left_motor.stop()
+            right_motor.stop()
+            rodar_direita()
+        
+        wait(3800)
+        left_motor.stop()
+        right_motor.stop()
+        if direcao == "frente":
+                localizacao[1] += 1
+        elif direcao == "direita":
+                localizacao[0] += 1
+        elif direcao == "atras":
+                localizacao[1] -= 1
+        elif direcao == "esquerda":
+                localizacao[0] -= 1
+        color()
+    else:
+        ev3.speaker.beep(400, 100)
+
+
 while True:
-    #andar(randDir())
-    print(distanciaSensor.distance(silent=False))
+    ran = randDir()
+    andar(ran)
+    
