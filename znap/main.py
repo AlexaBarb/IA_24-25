@@ -5,7 +5,7 @@
 #------------------------------------------------------------------------------------------------------> 
 from pybricks import ev3brick as brick
 from pybricks.hubs import EV3Brick 
-from pybricks.ev3devices import Motor, UltrasonicSensor,ColorSensor
+from pybricks.ev3devices import Motor, UltrasonicSensor,ColorSensor, Screen
 from pybricks.parameters import Port, Direction,Color
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait, StopWatch
@@ -38,8 +38,8 @@ novo_jogo = True
 #------------------------------------------------------------------------------------------------------> 
 def deteta_manteiga_bolor():
     if colorSensor.color() == Color.YELLOW:
-        # Limpar a tela antes de desenhar
-        ev3.screen.clear()
+        
+        ev3.screen.clear() # Limpar a tela antes de desenhar
         ev3.screen.draw_text(50, 60, "YAY Manteiga encontrada")
         middle_motor.run(1000)
         wait(1000)
@@ -53,15 +53,57 @@ def deteta_manteiga_bolor():
         middle_motor.run(-1000)
         wait(1000)
         middle_motor.stop()
-    elif colorSensor.color() == Color.GREEN:
-        emoji_triste()
-        sys.exit()
+    # elif colorSensor.color() == Color.GREEN:
+    #     emoji_triste()
+    #     sys.exit()
     else:
         # Limpar a tela antes de desenhar
         ev3.screen.clear()
         ev3.screen.draw_text(50, 60, "A procura da Manteiga")
 
 #---------------------------------------------------fim Deteta_agarra_manteiga-------------------------> 
+
+#------------------------------------------------------------------------------------------------------> 
+#       Função deteta_bolor deteta se encontrar o bolor fica triste e desiste
+#------------------------------------------------------------------------------------------------------> 
+def deteta_bolor():
+    if colorSensor.color() == Color.GREEN:
+        emoji_triste()
+        ev3.screen.draw_text(50, 60, "Derrotado pelo Bolor")
+        wait(1000)
+        sys.exit()
+#---------------------------------------------------fim deteta_bolor----------------------------------->
+
+#------------------------------------------------------------------------------------------------------> 
+#       Função deteta_torradeira se encontrar a torradeira espera 5 segundos a torrar
+#------------------------------------------------------------------------------------------------------> 
+def deteta_torradeira():
+    if colorSensor.color() == Color.BLUE:
+        ev3.screen.clear()
+        ev3.screen.draw_text(50, 60, "YAY ta quentinho")
+        wait(5000)
+#----------------------------------------------fim deteta_torradeira----------------------------------->
+
+#------------------------------------------------------------------------------------------------------> 
+#       Função deteta_barreira deteta as barreiras e tenta evita-las
+#------------------------------------------------------------------------------------------------------> 
+def deteta_barreira():
+    if tem_algo_aqui(): #chama função que verfica se tem algo em frente do robô
+            if colorSensor.color()== Color.RED: #se detetar uma barreira 
+                ev3.screen.clear()
+                emoji_triste()#mostrar cara triste no ecrã
+                ev3.screen.draw_text(10, 120, "A procura da Manteiga")
+                #para e move-se para a frente para conseguir virar
+                left_motor.stop()
+                right_motor.stop()
+                left_motor.run(-speed/2)
+                right_motor.run(-speed/2)
+                wait(1850)
+                left_motor.stop()
+                right_motor.stop()
+                #vira para a direita 
+                rodar_direita()
+#---------------------------------------------------fim Deteta_barreira-------------------------------->
 
 #------------------------------------------------------------------------------------------------------> 
 #       Função emoji_triste desenha emogi triste na tela do ev3
