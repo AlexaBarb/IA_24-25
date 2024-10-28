@@ -11,6 +11,7 @@ from pybricks.robotics import DriveBase
 from pybricks.tools import wait, StopWatch
 from pybricks.media.ev3dev import SoundFile, ImageFile
 from random import randint
+import sys
 
 
 #------------------------------------------------------------------------------------------------------> 
@@ -32,9 +33,9 @@ distanciaSensor = UltrasonicSensor(Port.S1)
 novo_jogo = True
 
 #------------------------------------------------------------------------------------------------------> 
-#       Função Deteta_agarra_manteiga deteta a manteiga e agarra-a
+#       Função deteta_manteiga_bolor deteta a manteiga e agarra-a, ou se encontrar o bolor fica triste e desiste
 #------------------------------------------------------------------------------------------------------> 
-def deteta_agarra_manteiga():
+def deteta_manteiga_bolor():
     if colorSensor.color() == Color.YELLOW:
         # Limpar a tela antes de desenhar
         ev3.screen.clear()
@@ -51,6 +52,9 @@ def deteta_agarra_manteiga():
         middle_motor.run(-1000)
         wait(1000)
         middle_motor.stop()
+    elif colorSensor.color() == Color.GREEN:
+        emoji_triste()
+        sys.exit()
     else:
         # Limpar a tela antes de desenhar
         ev3.screen.clear()
@@ -99,12 +103,13 @@ next_dir_code = 0         #código da proxima
 
 #------------------------------------------------------Nota--------------------------------------------->
 #cor barreiras -> vermelho
-#cor linhas -> preto
+#cor bolor -> verde
 #cor manteiga -> amarelo
 #cor torradeira -> azul 
 #---------------------------------------------------fim nota-------------------------------------------->
+
 #------------------------------------------------------------------------------------------------------> 
-# Função podeAndar retorna um booleano e recebe uma string com a direção a testar se pode andar
+# Função pode_andar retorna um booleano usa uma string direção para testar se pode andar
 #------------------------------------------------------------------------------------------------------> 
 def pode_andar(): #função que verifica se é possível andar na direção indicada
     if localizacao[0] == 1 and direcao == "esquerda": #se encontra-se no 1 quadrado/primeira linha e testa para a esquerda
@@ -117,7 +122,7 @@ def pode_andar(): #função que verifica se é possível andar na direção indi
         return False
     else:
         return True
-    #---------------------------------------------------fim podeAndar------------------------------------>    
+#---------------------------------------------------fim pode_andar------------------------------------>
 
 #-------------------------------------------------------------------------------------------------------->
 #   Função modulo recebe um valor e retorna o valor absoluto 
@@ -130,7 +135,7 @@ def modulo(a):
 #---------------------------------------------------fim modulo------------------------------------------>
 
 #------------------------------------------------------------------------------------------------------>
-# Função temAlgoAqui retorna um booleano e verifica se há algo a frente
+# Função tem_algo_aqui retorna um booleano e verifica se há algo a frente
 #------------------------------------------------------------------------------------------------------>
 def tem_algo_aqui(): #435 normal
     if distanciaSensor.distance(silent=True) != 435:  #se o sensor de distância detetar algo
@@ -139,9 +144,12 @@ def tem_algo_aqui(): #435 normal
         return False
 #---------------------------------------------------fim temAlgoAqui------------------------------------>
 
+#------------------------------------------------------------------------------------------------------>
+#                           Funç�es que controlam o movimento do robô em direç�es espec�ficas
+#------------------------------------------------------------------------------------------------------>
 
 #------------------------------------------------------------------------------------------------------>
-#                           Função que controla o movimento do robô em uma direção específica
+#                                   Funç�o que preparar o robo para poder girar
 #------------------------------------------------------------------------------------------------------>
 def prepara_rodar():
     global direcao
@@ -151,6 +159,8 @@ def prepara_rodar():
     wait(700) # Espera 700 ms
     left_motor.stop()
     right_motor.stop()
+
+#---------------------------------------------------fim prepara_rodar----------------------------------->
 
 #------------------------------------------------------------------------------------------------------>
 # Função rodar_direita que faz o robo girar à direita e atualiza a direção
@@ -211,7 +221,7 @@ def rodar_esquerda():
 #---------------------------------------------------fim rodar_esquerda--------------------------------->
 
 #------------------------------------------------------------------------------------------------------> 
-# Função randDir retorna a próxima direção a se movimentar aleatoriamente 
+# Função rand_dir retorna a próxima direção a se movimentar aleatoriamente
 #------------------------------------------------------------------------------------------------------>
 def rand_dir():
     global next_dir
@@ -232,7 +242,7 @@ def rand_dir():
 #---------------------------------------------------fim randDir------------------------------------------>
 
 #-------------------------------------------------------------------------------------------------------->
-# Função anda que faz o robô andar para a próxima direção
+# Função anda que, caso poder andar na direç�o selecionada, ir� andar nessa direç�o e atualizar a sua posiç�o
 #-------------------------------------------------------------------------------------------------------->
 def andar():
     if pode_andar():
@@ -270,7 +280,7 @@ def andar():
                 localizacao[1] -= 1
         elif direcao == "esquerda":
                 localizacao[0] -= 1
-        deteta_agarra_manteiga()
+        deteta_manteiga_bolor()
     else:
         ev3.speaker.beep(400, 100)
 #---------------------------------------------------fim andar--------------------------------------------->
