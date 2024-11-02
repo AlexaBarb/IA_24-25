@@ -33,14 +33,25 @@ distanciaSensor = UltrasonicSensor(Port.S1)
 #inicialização de variavel para começar o jogo
 novo_jogo = True
 
+
+#------------------------------------------------------------------------------------------------------>
+#       Função deteta_bolor deteta se encontrar o bolor fica triste e desiste
+#------------------------------------------------------------------------------------------------------>
+def deteta_bolor():
+    if colorSensor.color() == Color.GREEN:
+        emoji_triste()
+        ev3.screen.draw_text(50, 60, "Derrotado pelo Bolor")
+        wait(1000)
+        sys.exit()
+#---------------------------------------------------fim deteta_bolor----------------------------------->
+
 #------------------------------------------------------------------------------------------------------> 
 #       Função deteta_manteaiga_bolor deteta  manteiga e agarra-a, ou se encontrar o bolor fica triste e desiste
 #------------------------------------------------------------------------------------------------------> 
-def deteta_manteiga_bolor():
+def deteta_manteiga():
     if colorSensor.color() == Color.YELLOW:
-        
-        ev3.screen.clear() # Limpar a tela antes de desenhar
-        ev3.screen.draw_text(50, 60, "YAY Manteiga encontrada")
+        #ev3.screen.clear() # Limpar a tela antes de desenhar
+        #ev3.screen.draw_text(50, 60, "YAY Manteiga encontrada")
         middle_motor.run(1000)
         wait(1000)
         middle_motor.stop()
@@ -53,34 +64,29 @@ def deteta_manteiga_bolor():
         middle_motor.run(-1000)
         wait(1000)
         middle_motor.stop()
-    # elif colorSensor.color() == Color.GREEN:
-    #     emoji_triste()
-    #     sys.exit()
+        wait(3800)
+        left_motor.stop()
+        right_motor.stop()
+        print("Manteiga encontrada")
+        return True
     else:
         # Limpar a tela antes de desenhar
-        ev3.screen.clear()
-        ev3.screen.draw_text(50, 60, "A procura da Manteiga")
+        #ev3.screen.clear()
+        #ev3.screen.draw_text(50, 60, "A procura da Manteiga")
+        print("A procura da Manteiga")
+        return False
 
 #---------------------------------------------------fim Deteta_agarra_manteiga-------------------------> 
 
-#------------------------------------------------------------------------------------------------------> 
-#       Função deteta_bolor deteta se encontrar o bolor fica triste e desiste
-#------------------------------------------------------------------------------------------------------> 
-def deteta_bolor():
-    if colorSensor.color() == Color.GREEN:
-        emoji_triste()
-        ev3.screen.draw_text(50, 60, "Derrotado pelo Bolor")
-        wait(1000)
-        sys.exit()
-#---------------------------------------------------fim deteta_bolor----------------------------------->
 
 #------------------------------------------------------------------------------------------------------> 
 #       Função deteta_torradeira se encontrar a torradeira espera 5 segundos a torrar
 #------------------------------------------------------------------------------------------------------> 
 def deteta_torradeira():
     if colorSensor.color() == Color.BLUE:
-        ev3.screen.clear()
-        ev3.screen.draw_text(50, 60, "YAY ta quentinho")
+        print("Torradeira encontrada")
+        #ev3.screen.clear()
+        #ev3.screen.draw_text(50, 60, "YAY ta quentinho")
         wait(5000)
 #----------------------------------------------fim deteta_torradeira----------------------------------->
 
@@ -90,6 +96,7 @@ def deteta_torradeira():
 def deteta_barreira():
     #if tem_algo_aqui(): #chama função que verfica se tem algo em este do robô
     if colorSensor.color()== Color.RED: #se detetar uma barreira
+        print("Barreira encontrada")
         #ev3.screen.clear()
         #emoji_triste()#mostrar cara triste no ecrã
         #ev3.screen.draw_text(10, 120, "A procura da Manteiga")
@@ -314,14 +321,12 @@ def andar():
     wait(3700)
 
     deteta_barreira()
-
     wait(3800)
     left_motor.stop()
     right_motor.stop()
-
     mudaLocalizacao()
-
 #---------------------------------------------------fim andar--------------------------------------------->
+
 
 #-------------------------------------------------------------------------------------------------------->
 # Função que atualiza a localização do robô
@@ -350,7 +355,10 @@ while True:
         mudaLocalizacao()  # atualiza a localização
         '''
         andar()             # movimenta-se para a direção
-        deteta_manteiga_bolor()
+        if deteta_bolor():
+            break
+        if deteta_manteiga():
+            break
         wait(2000)  # espera pela proxima ronda
     else:
         print("Direção Inválida")
