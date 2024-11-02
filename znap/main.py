@@ -39,8 +39,8 @@ novo_jogo = True
 #------------------------------------------------------------------------------------------------------>
 def deteta_bolor():
     if colorSensor.color() == Color.GREEN:
-        emoji_triste()
-        ev3.screen.draw_text(50, 60, "Derrotado pelo Bolor")
+        #emoji_triste()
+        #ev3.screen.draw_text(50, 60, "Derrotado pelo Bolor")
         wait(1000)
         sys.exit()
 #---------------------------------------------------fim deteta_bolor----------------------------------->
@@ -94,6 +94,7 @@ def deteta_torradeira():
 #       Função deteta_barreira deteta as barreiras e tenta evita-las
 #------------------------------------------------------------------------------------------------------> 
 def deteta_barreira():
+    global direcao
     #if tem_algo_aqui(): #chama função que verfica se tem algo em este do robô
     if colorSensor.color()== Color.RED: #se detetar uma barreira
         print("Barreira encontrada")
@@ -110,6 +111,13 @@ def deteta_barreira():
         right_motor.stop()
         #vira para a sul
         rodar_direita()
+        print("Direção a mudar:" + direcao)
+        left_motor.run(speed/2)
+        right_motor.run(speed/2)
+        wait(4500)
+        left_motor.stop()
+        right_motor.stop()
+
 
 
 #---------------------------------------------------fim Deteta_barreira-------------------------------->
@@ -117,7 +125,7 @@ def deteta_barreira():
 #------------------------------------------------------------------------------------------------------> 
 #       Função emoji_triste desenha emogi triste na tela do ev3
 #------------------------------------------------------------------------------------------------------>  
-
+'''
 def emoji_triste():
         # Limpar a tela antes de desenhar
         ev3.screen.clear()
@@ -136,7 +144,7 @@ def emoji_triste():
         ev3.screen.draw_line(50, 30, 70, 40)
         # Sobrancelha sul
         ev3.screen.draw_line(110, 40, 130, 30)
-
+'''
 #---------------------------------------------------fim emoji_triste----------------------------------> 
 
 
@@ -171,6 +179,8 @@ def pode_andar(): #função que verifica se é possível andar na direção indi
     elif localizacao[0] >= 6 and next_dir_code == 3: #se encontra-se no 6 quadrado/ultima linha e testa para a sul
         return False
     elif localizacao[1] <= 1 and next_dir_code == 4: #se encontra-se no 1 quadrado/ primeira coluna e testa para atrás
+        return False
+    elif modulo(next_dir_code - dir_code) == 2:
         return False
     else:
         return True
@@ -232,10 +242,11 @@ def rodar_direita():
         direcao = "sul"
     if direcao == "sul": # se o robo estava virado para a sul fica virado para a trás
         direcao = "oeste"
-    if direcao == "norte":
-        direcao = "este"
     if direcao == "oeste": # se o robo estava virado para trás fica virado para a norte
         direcao = "norte"
+    if direcao == "norte":
+        direcao = "este"
+
 
  # se o robo estava virado para a este fica virado para a norte
 
@@ -287,20 +298,23 @@ def rand_dir():
         next_dir = "sul"      #este
     if next_dir_code == 4:
         next_dir = "oeste"        #sul
-    print("Direção atual:" + direcao) #atual
-    print("Próxima direção:" + next_dir) #proxima direção
+    #print("Direção atual:" + direcao) #atual                   --------------------------ver melhor pk n muda!!!!!!!!!!!!!!!!!!!!!
+    print("Próxima direção: " + next_dir +
+          " | Direções atual: " + str(dir_code) +
+          " | Direções seguinte: " + str(next_dir_code)) #proxima direção
 
 
 #---------------------------------------------------fim randDir------------------------------------------>
 
 def verifica_se_quer_virar():
+   # global direcao
     if modulo(next_dir_code - dir_code) == 1: #tem de virar mas não precisa de fazer 180
         if next_dir_code - dir_code == -1:
             rodar_esquerda()
-            print("Vira para a esquerda:" + direcao)
+            #print("Vira para a esquerda:" + direcao)
         else:
             rodar_direita()
-            print("Vira para a direita:" + direcao)
+            #print("Vira para a direita:" + direcao)
 
 def verifica_se_quer_rodar():
     if modulo(next_dir_code - dir_code) == 2:
@@ -318,10 +332,10 @@ def andar():
     #anda
     left_motor.run(speed/2)
     right_motor.run(speed/2)
-    wait(3700)
+    wait(3000)
 
     deteta_barreira()
-    wait(3800)
+    wait(4500)
     left_motor.stop()
     right_motor.stop()
     mudaLocalizacao()
@@ -342,6 +356,18 @@ def mudaLocalizacao():
     elif dir_code == 4: #oeste
             localizacao[1] -= 1 #tira da coluna
 
+def arranjaDir():
+    global dir_code
+    if direcao == "este":
+        dir_code = 2
+    if direcao == "norte":
+        dir_code = 1
+    if direcao == "oeste":
+        dir_code = 4
+    if direcao == "sul":
+        dir_code = 3
+
+
 #-------------------------------------------------------------------------------------------------------->
 # Ciclo de teste de código
 #-------------------------------------------------------------------------------------------------------->
@@ -359,6 +385,7 @@ while True:
             break
         if deteta_manteiga():
             break
+        deteta_torradeira()
         wait(2000)  # espera pela proxima ronda
     else:
         print("Direção Inválida")
