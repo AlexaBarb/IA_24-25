@@ -36,9 +36,8 @@ novo_jogo = True
 #------------------------------------------------------------------------------------------------------> 
 #       Função deteta_manteaiga_bolor deteta  manteiga e agarra-a, ou se encontrar o bolor fica triste e desiste
 #------------------------------------------------------------------------------------------------------> 
-def deteta_manteiga_bolor():
+def deteta_manteiga():
     if colorSensor.color() == Color.YELLOW:
-        
         ev3.screen.clear() # Limpar a tela antes de desenhar
         ev3.screen.draw_text(50, 60, "YAY Manteiga encontrada")
         middle_motor.run(1000)
@@ -53,9 +52,6 @@ def deteta_manteiga_bolor():
         middle_motor.run(-1000)
         wait(1000)
         middle_motor.stop()
-    # elif colorSensor.color() == Color.GREEN:
-    #     emoji_triste()
-    #     sys.exit()
     else:
         # Limpar a tela antes de desenhar
         ev3.screen.clear()
@@ -139,10 +135,10 @@ def emoji_triste():
 
 #def Inicio():
 localizacao = [1,1]     #localização inicial no ambiente [0] ->linha [0] -> coluna
-direcao = "este"
+direcao = "este"        # Diz qual a direçao cardinal que o robô está a apontar
 dir_code = 2             #codigo da direção atual, 1=norte, 2=este, 3=sul e 4=oeste
 speed = 250             #velocidade inicial
-next_dir = ""            #proxima direção
+next_dir = ""            #proxima direção (esquerda, direita, frente)
 next_dir_code = 0         #código da proxima
 #---------------------------------------------------fim Inicio------------------------------------------> 
 
@@ -157,14 +153,34 @@ next_dir_code = 0         #código da proxima
 # Função pode_andar retorna um booleano usa uma string direção para testar se pode andar
 #------------------------------------------------------------------------------------------------------> 
 def pode_andar(): #função que verifica se é possível andar na direção indicada
-    if localizacao[0] <= 1 and next_dir_code == 1: #se encontra-se no 1 quadrado/primeira linha e testa para a norte
-        return False #fora dos limites do ambiente
-    elif localizacao[1] >= 6 and next_dir_code == 2: #se encontra-se no 6 quadrado/ ultima coluna e testa para a este
-        return False
-    elif localizacao[0] >= 6 and next_dir_code == 3: #se encontra-se no 6 quadrado/ultima linha e testa para a sul
-        return False
-    elif localizacao[1] <= 1 and next_dir_code == 4: #se encontra-se no 1 quadrado/ primeira coluna e testa para atrás
-        return False
+    if localizacao[0] <= 1: #se encontra-se no 1 quadrado/primeira linha e testa para a norte
+        if dir_code == 2 and next_dir_code == 1:
+            return False
+        if dir_code == 4 and next_dir_code == 3:
+            return False
+        if dir_code == 1 and next_dir_code == 2:
+            return False
+    elif localizacao[1] >= 6: #se encontra-se no 6 quadrado/ ultima coluna e testa para a este
+        if dir_code == 2 and next_dir_code == 2:
+            return False
+        if dir_code == 3 and next_dir_code == 1:
+            return False
+        if dir_code == 1 and next_dir_code == 3:
+            return False
+    elif localizacao[0] >= 6: #se encontra-se no 6 quadrado/ultima linha e testa para a sul
+        if dir_code == 3 and next_dir_code == 2:
+            return False
+        if dir_code == 2 and next_dir_code == 3:
+            return False
+        if dir_code == 1 and next_dir_code == 1:
+            return False
+    elif localizacao[1] <= 1: #se encontra-se no 1 quadrado/ primeira coluna e testa para atrás
+        if dir_code == 3 and next_dir_code == 3:
+            return False
+        if dir_code == 1 and next_dir_code == 1:
+            return False
+        if dir_code == 4 and next_dir_code == 2:
+            return False
     else:
         return True
 #---------------------------------------------------fim pode_andar------------------------------------>
@@ -197,8 +213,6 @@ def tem_algo_aqui(): #435 normal
 #                                   Funç�o que preparar o robo para poder girar
 #------------------------------------------------------------------------------------------------------>
 def prepara_rodar():
-    global direcao
-    global dir_code
     left_motor.run(speed*3)
     right_motor.run(speed*3)
     wait(700) # Espera 700 ms
@@ -270,44 +284,37 @@ def rodar_esquerda():
 def rand_dir():
     global next_dir #direção a seguir
     global next_dir_code #codigo da direção a seguir
-    next_dir_code = randint(1,4) # guarda um número aletório de 0 a 4 + 1 ou seja, de 1 a 5
-    #codigo da direção atual, 1=norte, 2=este, 3=sul e 4=oeste 
-    if next_dir_code == 2:
-        next_dir = "este"        # norte
-    if next_dir_code == 1:
-        next_dir = "norte"      #oeste
-    if next_dir_code == 3:
-        next_dir = "sul"      #este
-    if next_dir_code == 4:
-        next_dir = "oeste"        #sul
-    print("Direção atual:" + direcao) #atual
-    print("Próxima direção:" + next_dir) #proxima direção
+    retry = True
+    while retry:
+        retry = False
+        next_dir_code = randint(1,3) # guarda um número aletório de 0 a 4 + 1 ou seja, de 1 a 5
+        #codigo da direção atual, 1=norte, 2=este, 3=sul e 4=oeste
+        if next_dir_code == 1:
+            next_dir = "esquerda"
+        elif next_dir_code == 2:
+            next_dir = "frente"
+        elif next_dir_code == 3:
+            next_dir = "direita"
+        if pode_andar():
+            retry = True
 
 
 #---------------------------------------------------fim randDir------------------------------------------>
 
 def verifica_se_quer_virar():
-    if modulo(next_dir_code - dir_code) == 1: #tem de virar mas não precisa de fazer 180
-        if next_dir_code - dir_code == -1:
+    if next_dir_code != 2: #tem de virar mas não precisa de fazer 180
+        if next_dir_code == 1:
             rodar_esquerda()
             print("Vira para a esquerda:" + direcao)
         else:
             rodar_direita()
             print("Vira para a direita:" + direcao)
 
-def verifica_se_quer_rodar():
-    if modulo(next_dir_code - dir_code) == 2:
-        print(direcao)
-        rodar_direita()
-        print(direcao)
-        rodar_direita()  # Gira duas vezes para mudar 180°
-        print(direcao)
 #-------------------------------------------------------------------------------------------------------->
 # Função anda que, caso poder andar na direç�o selecionada, ir� andar nessa direç�o e atualizar a sua posiç�o
 #-------------------------------------------------------------------------------------------------------->
 def andar():
     verifica_se_quer_virar()
-    verifica_se_quer_rodar()
     #anda
     left_motor.run(speed/2)
     right_motor.run(speed/2)
@@ -343,17 +350,15 @@ def mudaLocalizacao():
 while True:
     print(localizacao)  # imprimi a localização atual
     rand_dir()          # decidir uma direção aleatória
-    if pode_andar():
-        '''
-        dir_code = next_dir_code
-        direcao = next_dir
-        mudaLocalizacao()  # atualiza a localização
-        '''
-        andar()             # movimenta-se para a direção
-        deteta_manteiga_bolor()
-        wait(2000)  # espera pela proxima ronda
-    else:
-        print("Direção Inválida")
+    '''
+    dir_code = next_dir_code
+    direcao = next_dir
+    mudaLocalizacao()  # atualiza a localização
+    '''
+    andar()             # movimenta-se para a direção
+    deteta_manteiga()
+    deteta_bolor()
+    wait(3000)  # espera pela proxima ronda
 
 # while True:
     
