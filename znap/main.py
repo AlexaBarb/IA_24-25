@@ -6,7 +6,7 @@
 from pybricks import ev3brick as brick
 from pybricks.hubs import EV3Brick 
 from pybricks.ev3devices import Motor, UltrasonicSensor, ColorSensor
-from pybricks.parameters import Port, Direction,Color, Port  
+from pybricks.parameters import Port, Direction, Color, Port  
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait, StopWatch, print
 
@@ -51,6 +51,7 @@ contador_rondas = 0
 #------------------------------------------------------------------------------------------------------> 
 def deteta_manteiga():
     if colorSensor.color() == Color.YELLOW:
+        print("Manteiga encontrada")
         ev3.screen.clear() # Limpar a tela antes de desenhar
         ev3.screen.draw_text(30, 60, "YAY Manteiga encontrada")
         middle_motor.run(1000)
@@ -78,6 +79,7 @@ def deteta_manteiga():
 #------------------------------------------------------------------------------------------------------> 
 def deteta_bolor():
     if colorSensor.color() == Color.GREEN:
+        print("Derrotado pelo bolor")
         emoji_triste()
         ev3.screen.draw_text(5, 90, "Derrotado pelo")
         ev3.screen.draw_text(50, 110, "Bolor")
@@ -89,11 +91,16 @@ def deteta_bolor():
 #       Função deteta_torradeira se encontrar a torradeira espera 5 segundos a torrar
 #------------------------------------------------------------------------------------------------------> 
 def deteta_torradeira():
-    if colorSensor.color() == Color.BLUE:
+    global contador_rondas
+    if colorSensor.color() == Color.RED:
         ev3.screen.clear()
-        ev3.screen.draw_text(50, 60, "YAY ta quentinho")
+        ev3.screen.draw_text(5, 60, "YAY ta quentinho")
         contador_rondas+=1
-        wait(5000)
+        print("A torradeira está a tostar homem tosta")
+        wait(3000)
+        return False
+    return True    
+        #wait(5000)
 #----------------------------------------------fim deteta_torradeira----------------------------------->
 
 #------------------------------------------------------------------------------------------------------> 
@@ -376,15 +383,20 @@ def mudaLocalizacao():
             localizacao[1] -= 1 #tira da coluna
 
 def cheirar():
+    global next_dir_code
     print("Cheirando")
     ev3.screen.clear() # Limpar a tela antes de desenhar
     ev3.screen.draw_text(5, 90, "Cheirando")
     while True:
         #verde -> bom caminho
         #vermelho -> caminho mau 
+        if colorSensor.color() == Color.YELLOW: #sentir calor 
+            print("Torradeira está perto") # 1 casa
+            wait(2000)
         if colorSensor.color() == Color.GREEN:
             print("Caminho mais perto da manteiga")
-            if not pode_andar():
+            next_dir_code = 2
+            if (localizacao[1] == 6 and dir_code == 2) or (localizacao[0] == 6 and dir_code == 3) or (localizacao[1] == 1 and dir_code == 4) or (localizacao[0] == 1 and dir_code == 1):
                 print("Não posso andar")
                 mini_rand_dir()   # escolhe uma direção aleatória esq ou dir
                 if not pode_andar():
@@ -393,9 +405,11 @@ def cheirar():
                         next_dir_code = 3
                     elif next_dir_code == 3:
                         next_dir_code = 1
+            ev3.screen.clear() # Limpar a tela antes de desenhar            
             return False
         elif colorSensor.color() == Color.RED:
             print("Caminho mais longe da manteiga")
+            ev3.screen.clear() # Limpar a tela antes de desenhar
             return True
             
             
@@ -404,27 +418,36 @@ def cheirar():
 #-------------------------------------------------------------------------------------------------------->
 while True:
     print("************* Ronda: " + str(contador_rondas) + " *************")
-    retry = True
-    if contador_rondas == 0:
-        while retry:        
-            rand_dir()          # decidir uma direção aleatória
-            if pode_andar():
-                retry = False
-    else:
-        while cheirar() and retry:        
-            rand_dir()          # decidir uma direção aleatória
-            if pode_andar():
-                retry = False
-     #print("nao saio daqui")
-  
-    andar()             # movimenta-se para a direção
-    deteta_torradeira()
-    if deteta_manteiga():
-        break
-    if deteta_bolor():
-        break
-    print(localizacao)  # imprimi a localização atual
-    wait(3000)  # espera pela proxima ronda
-    contador_rondas += 1
+    ev3.screen.clear()
+    ev3.screen.draw_text(10, 20, "A procura da ")
+    ev3.screen.draw_text(25, 35, "Torradeira")
+    if deteta_torradeira():
+        retry = True
+        wait(1000)
+        if contador_rondas == 0:
+            while retry:        
+                rand_dir()          # decidir uma direção aleatória
+                if pode_andar():
+                    retry = False
+        else:
+            while cheirar() and retry:        
+                #rand_dir()          # decidir uma direção aleatória
+                mini_rand_dir()
+                if pode_andar():
+                    retry = False
+        #print("nao saio daqui")
+    
+        while pode_andar():
+            andar()
+            break             # movimenta-se para a direção
+        if deteta_manteiga():
+            break
+        if deteta_bolor():
+            break
+        print(localizacao)  # imprimi a localização atual
+        wait(3000)  # espera pela proxima ronda
+        contador_rondas += 1
+    ev3.speaker.beep(400, 100)
+    ev3.screen.clear()
     print("----------------------------------------------------------------->")
  
