@@ -92,7 +92,7 @@ def deteta_bolor():
 #------------------------------------------------------------------------------------------------------> 
 def deteta_torradeira():
     global contador_rondas
-    if colorSensor.color() == Color.RED:
+    if colorSensor.color() == Color.RED: 
         ev3.screen.clear()
         ev3.screen.draw_text(5, 60, "YAY ta quentinho")
         contador_rondas+=1
@@ -382,6 +382,92 @@ def mudaLocalizacao():
     elif dir_code == 4: #oeste
             localizacao[1] -= 1 #tira da coluna
 
+#-------------------------------------------------------------------------------------------------------->
+# Função que atualiza a localização do robô
+#-------------------------------------------------------------------------------------------------------->
+def mostrar_localizacao(localizacao):
+    # Obter as coordenadas x e y da posição, ajustando para índice zero
+    x, y = localizacao[0] - 1, localizacao[1] - 1
+    
+    # Verificar se as coordenadas estão dentro dos limites da matriz
+    if not (0 <= x < 6 and 0 <= y < 6):
+        print("Posição fora dos limites da matriz.")
+        return
+
+    # Construir a matriz com bordas
+    for i in range(6):
+        # Linha superior das células
+        print(" _   " * 6)
+        
+        # Linha com conteúdo das células
+        linha = ""
+        for j in range(6):
+            if i == x and j == y:
+                linha += "| X "  # Marca a posição especificada com 'X'
+            else:
+                linha += "|   "  # Célula vazia
+        linha += "|"  # Final da linha
+        print(linha)
+    
+    # Linha inferior das células
+    print(" _   " * 6)
+
+
+#-------------------------------------------------------------------------------------------------------->
+# Funções para calibrar sensor de cor
+#-------------------------------------------------------------------------------------------------------->
+def calibra_color_sensor(sensor):
+    ev3.speaker.beep()  # Som para indicar o início da calibração
+    print("Coloque o sensor sobre uma superfície preta e pressione o botão central.")
+    
+    # Espera até que o botão central seja pressionado para calibrar o preto
+    while not any(ev3.buttons.pressed()):
+        wait(10)
+    preto = sensor.reflection()
+    print("Reflexão no preto:", preto)
+    wait(1000)  # Tempo para ajustar a posição
+    ev3.speaker.beep()  # Som para indicar o início da calibração
+    print("Coloque o sensor sobre uma superfície branca e pressione o botão central.")
+    
+    # Espera até que o botão central seja pressionado para calibrar o branco
+    while not any(ev3.buttons.pressed()):
+        wait(10)
+    branco = sensor.reflection()
+    print("Reflexão no branco:", branco)
+    
+    # Calcula a faixa de calibração
+    if branco - preto == 0:
+        raise ValueError("Erro na calibração: reflexões preta e branca são iguais.")
+    
+    return preto, branco
+
+def get_reflexao_calibrada(sensor, preto, branco):
+    # Obtenção e normalização da leitura atual do sensor
+    reflexão = sensor.reflection()
+    calibra_reflexão = (reflexão - preto) / (branco - preto) * 100
+    return max(0, min(100, calibra_reflexão))  # Limita a faixa de 0 a 100
+
+# Calibração
+preto, branco = calibra_color_sensor(colorSensor)
+ev3.speaker.beep()  # Som para indicar o fim da calibração
+wait(1000)
+ev3.speaker.beep()  # Som para indicar o fim da calibração
+print("Calibração concluída.")
+
+
+#-------------------------------------------------------------------------------------------------------->
+# Função que representa o cheiro do bolor
+#-------------------------------------------------------------------------------------------------------->
+#def cheiro_bolor():
+    # N - S - E - O
+    # se encontrar 1 a manteiga acaba o jogo como representar? 
+    #localização incial = [6,6]
+    #pode saltar barreiras 
+    #[6,6] -> [5,6] -> ?
+
+#-------------------------------------------------------------------------------------------------------->
+# Função que deteta a cor e associa ao cheiro de um dos elementos
+#-------------------------------------------------------------------------------------------------------->
 def cheirar():
     global next_dir_code
     print("Cheirando")
@@ -396,7 +482,8 @@ def cheirar():
         if colorSensor.color() == Color.GREEN:
             print("Caminho mais perto da manteiga")
             next_dir_code = 2
-            if (localizacao[1] == 6 and dir_code == 2) or (localizacao[0] == 6 and dir_code == 3) or (localizacao[1] == 1 and dir_code == 4) or (localizacao[0] == 1 and dir_code == 1):
+            if ((localizacao[1] == 6 and dir_code == 2) or (localizacao[0] == 6 and dir_code == 3) or 
+                (localizacao[1] == 1 and dir_code == 4) or (localizacao[0] == 1 and dir_code == 1)):
                 print("Não posso andar")
                 mini_rand_dir()   # escolhe uma direção aleatória esq ou dir
                 if not pode_andar():
@@ -417,6 +504,11 @@ def cheirar():
 # Ciclo de teste de código
 #-------------------------------------------------------------------------------------------------------->
 while True:
+
+    if contador_rondas == 0: #calibrar sensor de cor
+        Valor_calibração = get_reflexao_calibrada(colorSensor, preto, branco)
+        print("Reflexão calibrada:", Valor_calibração)
+
     print("************* Ronda: " + str(contador_rondas) + " *************")
     ev3.screen.clear()
     ev3.screen.draw_text(10, 20, "A procura da ")
@@ -445,6 +537,7 @@ while True:
         if deteta_bolor():
             break
         print(localizacao)  # imprimi a localização atual
+        mostrar_localizacao(localizacao)
         wait(3000)  # espera pela proxima ronda
         contador_rondas += 1
     ev3.speaker.beep(400, 100)
