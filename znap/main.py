@@ -92,7 +92,7 @@ def deteta_bolor():
 #------------------------------------------------------------------------------------------------------> 
 def deteta_torradeira():
     global contador_rondas
-    if colorSensor.color() == Color.RED: 
+    if colorSensor.color() == Color.BLACK:#Color.RED: 
         ev3.screen.clear()
         ev3.screen.draw_text(5, 60, "YAY ta quentinho")
         contador_rondas+=1
@@ -476,7 +476,7 @@ def cheirar():
     while True:
         #verde -> bom caminho
         #vermelho -> caminho mau 
-        if colorSensor.color() == Color.YELLOW: #sentir calor 
+        if colorSensor.color() == Color.WHITE: #sentir calor 
             print("Torradeira está perto") # 1 casa
             wait(2000)
         if colorSensor.color() == Color.GREEN:
@@ -494,7 +494,7 @@ def cheirar():
                         next_dir_code = 1
             ev3.screen.clear() # Limpar a tela antes de desenhar            
             return False
-        elif colorSensor.color() == Color.RED:
+        elif colorSensor.color() == Color.BROWN: #Color.RED
             print("Caminho mais longe da manteiga")
             ev3.screen.clear() # Limpar a tela antes de desenhar
             return True
