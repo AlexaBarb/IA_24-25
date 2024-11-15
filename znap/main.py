@@ -92,7 +92,7 @@ def deteta_bolor():
 #------------------------------------------------------------------------------------------------------> 
 def deteta_torradeira():
     global contador_rondas
-    if colorSensor.color() == Color.BLACK:#Color.RED: 
+    if colorSensor.color() == Color.RED:#Color.RED: 
         ev3.screen.clear()
         ev3.screen.draw_text(5, 60, "YAY ta quentinho")
         contador_rondas+=1
@@ -230,11 +230,11 @@ def tem_algo_aqui(): #435 normal
 #---------------------------------------------------fim temAlgoAqui------------------------------------>
 
 #------------------------------------------------------------------------------------------------------>
-#                           Funç�es que controlam o movimento do robô em direç�es espec�ficas
+#                           Funç es que controlam o movimento do robô em direç es espec ficas
 #------------------------------------------------------------------------------------------------------>
 
 #------------------------------------------------------------------------------------------------------>
-#                                   Funç�o que preparar o robo para poder girar
+#                                   Funç o que preparar o robo para poder girar
 #------------------------------------------------------------------------------------------------------>
 def prepara_rodar():
     left_motor.run(speed*3)
@@ -348,7 +348,7 @@ def verifica_se_quer_virar():
             print("Vira para a direita: code -> " + str(dir_code) + " direção -> " + direcao)
 
 #-------------------------------------------------------------------------------------------------------->
-# Função anda que, caso poder andar na direç�o selecionada, ir� andar nessa direç�o e atualizar a sua posiç�o
+# Função anda que, caso poder andar na direç o selecionada, ir  andar nessa direç o e atualizar a sua posiç o
 #-------------------------------------------------------------------------------------------------------->
 def andar():
     print("Direção atual:  " + direcao + " code -> " + str(dir_code))
@@ -448,11 +448,11 @@ def get_reflexao_calibrada(sensor, preto, branco):
     return max(0, min(100, calibra_reflexão))  # Limita a faixa de 0 a 100
 
 # Calibração
-preto, branco = calibra_color_sensor(colorSensor)
-ev3.speaker.beep()  # Som para indicar o fim da calibração
-wait(1000)
-ev3.speaker.beep()  # Som para indicar o fim da calibração
-print("Calibração concluída.")
+# preto, branco = calibra_color_sensor(colorSensor)
+# ev3.speaker.beep()  # Som para indicar o fim da calibração
+# wait(1000)
+# ev3.speaker.beep()  # Som para indicar o fim da calibração
+# print("Calibração concluída.")
 
 
 #-------------------------------------------------------------------------------------------------------->
@@ -505,9 +505,9 @@ def cheirar():
 #-------------------------------------------------------------------------------------------------------->
 while True:
 
-    if contador_rondas == 0: #calibrar sensor de cor
-        Valor_calibração = get_reflexao_calibrada(colorSensor, preto, branco)
-        print("Reflexão calibrada:", Valor_calibração)
+    # if contador_rondas == 0: #calibrar sensor de cor
+    #     Valor_calibração = get_reflexao_calibrada(colorSensor, preto, branco)
+    #     print("Reflexão calibrada:", Valor_calibração)
 
     print("************* Ronda: " + str(contador_rondas) + " *************")
     ev3.screen.clear()
@@ -543,4 +543,3 @@ while True:
     ev3.speaker.beep(400, 100)
     ev3.screen.clear()
     print("----------------------------------------------------------------->")
- 
