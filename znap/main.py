@@ -5,7 +5,7 @@
 #------------------------------------------------------------------------------------------------------> 
 from pybricks import ev3brick as brick
 from pybricks.hubs import EV3Brick 
-from pybricks.ev3devices import Motor, UltrasonicSensor, ColorSensor
+from pybricks.ev3devices import Motor, UltrasonicSensor, ColorSensor, TouchSensor
 from pybricks.parameters import Port, Direction, Color, Port  
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait, StopWatch, print
@@ -29,6 +29,7 @@ left_motor = Motor(Port.D)
 #inicialização do sensor de cor
 colorSensor = ColorSensor(Port.S2)
 distanciaSensor = UltrasonicSensor(Port.S1)
+toqueSensor = TouchSensor(Port.S3)
 
 #------------------------------------------------------------------------------------------------------> 
 #                                       Movimento Inicial 
@@ -43,6 +44,7 @@ next_dir = ""            #proxima direção (esquerda, direita, frente)
 next_dir_code = 0         #código da proxima
 #inicialização de variavel para começar o jogo
 contador_rondas = 0
+localizacao_bolor = [6,6] # localização do bolor inicial
 #---------------------------------------------------fim Inicio------------------------------------------> 
 
 
@@ -464,6 +466,7 @@ def get_reflexao_calibrada(sensor, preto, branco):
     #localização incial = [6,6]
     #pode saltar barreiras 
     #[6,6] -> [5,6] -> ?
+    #localizacao_bolor
 
 #-------------------------------------------------------------------------------------------------------->
 # Função que deteta a cor e associa ao cheiro de um dos elementos
@@ -475,7 +478,8 @@ def cheirar():
     ev3.screen.draw_text(5, 90, "Cheirando")
     while True:
         #verde -> bom caminho
-        #vermelho -> caminho mau 
+        #castanho -> caminho mau 
+        #if toqueSensor.pressed():
         if colorSensor.color() == Color.WHITE: #sentir calor 
             print("Torradeira está perto") # 1 casa
             wait(2000)
