@@ -45,6 +45,9 @@ next_dir_code = 0         #código da proxima
 #inicialização de variavel para começar o jogo
 contador_rondas = 0
 localizacao_bolor = [6,6] # localização do bolor inicial
+#localizacao_manteiga = [5,2];
+distancia_manteiga = 11 #distancia da manteiga 0 - 10
+old_dist = 11 #antiga distancia da manteiga
 #---------------------------------------------------fim Inicio------------------------------------------> 
 
 
@@ -68,6 +71,7 @@ def deteta_manteiga():
         middle_motor.run(-1000)
         wait(1000)
         middle_motor.stop()
+        sys.exit()
     else:
         # Limpar a tela antes de desenhar
         ev3.screen.clear()
@@ -390,7 +394,7 @@ def mudaLocalizacao():
 def mostrar_localizacao(localizacao):
     # Obter as coordenadas x e y da posição, ajustando para índice zero
     x, y = localizacao[0] - 1, localizacao[1] - 1
-    
+    xb, yb = localizacao_bolor[0] - 1, localizacao_bolor[1] - 1
     # Verificar se as coordenadas estão dentro dos limites da matriz
     if not (0 <= x < 6 and 0 <= y < 6):
         print("Posição fora dos limites da matriz.")
@@ -406,6 +410,8 @@ def mostrar_localizacao(localizacao):
         for j in range(6):
             if i == x and j == y:
                 linha += "| X "  # Marca a posição especificada com 'X'
+            elif i == xb and j == yb:
+                linha += "| B "  # Marca a posição especificada com B
             else:
                 linha += "|   "  # Célula vazia
         linha += "|"  # Final da linha
@@ -449,12 +455,7 @@ def get_reflexao_calibrada(sensor, preto, branco):
     calibra_reflexão = (reflexão - preto) / (branco - preto) * 100
     return max(0, min(100, calibra_reflexão))  # Limita a faixa de 0 a 100
 
-# Calibração
-# preto, branco = calibra_color_sensor(colorSensor)
-# ev3.speaker.beep()  # Som para indicar o fim da calibração
-# wait(1000)
-# ev3.speaker.beep()  # Som para indicar o fim da calibração
-# print("Calibração concluída.")
+
 
 
 #-------------------------------------------------------------------------------------------------------->
@@ -503,12 +504,144 @@ def cheirar():
             ev3.screen.clear() # Limpar a tela antes de desenhar
             return True
             
-            
+# Código para a matriz do bolor
+def bolor_calculator():
+    global localizacao_bolor
+    caminhos = {
+        "norte" : modulo(localizacao[1] - (localizacao_bolor[1] - 1)),
+        "sul" : modulo(localizacao[1] - (localizacao_bolor[1] + 1)),
+        "este" : modulo(localizacao[0] - (localizacao_bolor[0] + 1)),
+        "oeste" : modulo(localizacao[0] - (localizacao_bolor[0] - 1))
+    }
+    print("norte bolor: " + str(caminhos["norte"]))
+    print("sul bolor: " + str(caminhos["sul"]))
+    print("este bolor: " + str(caminhos["este"]))
+    print("oeste bolor: " + str(caminhos["oeste"]))
+    min_local = 999 #menor distancia ao bolor
+    if caminhos["norte"] < min_local:
+        min_local = caminhos["norte"] #4
+    if caminhos["sul"] < min_local:  #6
+        min_local = caminhos["sul"] #4
+    if caminhos["este"] < min_local: #6
+        min_local = caminhos["este"] #4
+    if caminhos["oeste"] < min_local: #4
+        min_local = caminhos["oeste"] #4
+    print("caminho mais proximo para o bolor: " + str(min_local))
+    if caminhos["norte"] == min_local:
+        localizacao_bolor[1] -= 1
+        print ("bolor foi para norte")
+        print("bolor tá em " + str(localizacao_bolor))
+        return 0
+    elif caminhos["sul"] == min_local:
+        localizacao_bolor[1] += 1
+        print("bolor foi para sul")
+        print("bolor tá em " + str(localizacao_bolor))
+        return 0
+    elif caminhos["este"] == min_local:
+        localizacao_bolor[0] += 1
+        print("bolor foi para este")
+        print("bolor tá em " + str(localizacao_bolor))
+        return 0
+    elif caminhos["oeste"] == min_local:
+        localizacao_bolor[0] -= 1
+        print("bolor foi para oeste")
+        print("bolor tá em " + str(localizacao_bolor))
+        return 0
+        
+def dist_manteiga():
+    global next_dir_code
+    global distancia_manteiga
+    global old_dist #distancia anterior
+    print("Cheirando")
+    ev3.screen.clear() # Limpar a tela antes de desenhar
+    ev3.screen.draw_text(5, 90, "Cheirando")
+    deteta_manteiga()
+    while True:
+        if toqueSensor.pressed() == False:
+            if colorSensor.color() == Color.GREEN:
+                distancia_manteiga = 1
+                break
+            elif colorSensor.color() == Color.YELLOW:
+                distancia_manteiga = 2
+                break
+            elif colorSensor.color() == Color.RED:
+                distancia_manteiga = 3  
+                break
+        elif toqueSensor.pressed() == True:
+            if colorSensor.color() == Color.GREEN:
+                distancia_manteiga = 4
+                break
+            elif colorSensor.color() == Color.YELLOW:
+                distancia_manteiga = 5
+                break
+            elif colorSensor.color() == Color.RED:
+                distancia_manteiga = 6
+                break
+        if colorSensor.color() == Color.WHITE:  
+            print("Torradeira está perto") # 1 casa
+            wait(2000)
+
+    compara_dist()
+
+def compara_dist():
+    global next_dir_code
+    global old_dist
+    print("antiga distancia: " + str(old_dist))
+    if old_dist < distancia_manteiga:
+        old_dist = distancia_manteiga
+        print("Caminho mais longe da manteiga")
+        print("Distancia da manteiga: " + str(distancia_manteiga))
+        ev3.screen.clear() # Limpar a tela antes de desenhar
+        print("Casas de distância da manteiga: " + str(distancia_manteiga))
+        retry = True
+        while retry:       
+            mini_rand_dir()
+            if pode_andar():
+                retry = False
+
+    elif old_dist > distancia_manteiga:
+        old_dist = distancia_manteiga
+        print("Caminho mais perto da manteiga")
+        print("Distancia da manteiga: " + str(distancia_manteiga))
+        next_dir_code = 2
+        if ((localizacao[1] == 6 and dir_code == 2) or (localizacao[0] == 6 and dir_code == 3) or 
+            (localizacao[1] == 1 and dir_code == 4) or (localizacao[0] == 1 and dir_code == 1)):
+            print("Não posso andar")
+            mini_rand_dir()   # escolhe uma direção aleatória esq ou dir
+            if not pode_andar():
+                print("mini errado")
+                if next_dir_code == 1:
+                    next_dir_code = 3
+                elif next_dir_code == 3:
+                    next_dir_code = 1
+        ev3.screen.clear() # Limpar a tela antes de desenhar            
+
+    
+    elif old_dist == distancia_manteiga:
+        retryD = True
+        while retryD:
+            rand_dir()
+            if ((localizacao[1] == 6 and dir_code == 2) or (localizacao[0] == 6 and dir_code == 3) or 
+            (localizacao[1] == 1 and dir_code == 4) or (localizacao[0] == 1 and dir_code == 1)):
+                retry = False
+
+    
+    
+    
+    
+
 #-------------------------------------------------------------------------------------------------------->
 # Ciclo de teste de código
 #-------------------------------------------------------------------------------------------------------->
-while True:
 
+#Calibração
+preto, branco = calibra_color_sensor(colorSensor)
+ev3.speaker.beep()  # Som para indicar o fim da calibração
+wait(1000)
+ev3.speaker.beep()  # Som para indicar o fim da calibração
+print("Calibração concluída.")
+
+while True:
     if contador_rondas == 0: #calibrar sensor de cor
          Valor_calibração = get_reflexao_calibrada(colorSensor, preto, branco)
          print("Reflexão calibrada:", Valor_calibração)
@@ -526,13 +659,10 @@ while True:
                 if pode_andar():
                     retry = False
         else:
-            while cheirar() and retry:        
-                #rand_dir()          # decidir uma direção aleatória
-                mini_rand_dir()
-                if pode_andar():
-                    retry = False
+            dist_manteiga()
+               
         #print("nao saio daqui")
-    
+        print(pode_andar())
         while pode_andar():
             andar()
             break             # movimenta-se para a direção
@@ -541,6 +671,7 @@ while True:
         if deteta_bolor():
             break
         print(localizacao)  # imprimi a localização atual
+        #bolor_calculator()
         mostrar_localizacao(localizacao)
         wait(3000)  # espera pela proxima ronda
         contador_rondas += 1
