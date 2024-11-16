@@ -509,9 +509,9 @@ def cheirar():
 #-------------------------------------------------------------------------------------------------------->
 while True:
 
-    # if contador_rondas == 0: #calibrar sensor de cor
-    #     Valor_calibração = get_reflexao_calibrada(colorSensor, preto, branco)
-    #     print("Reflexão calibrada:", Valor_calibração)
+    if contador_rondas == 0: #calibrar sensor de cor
+         Valor_calibração = get_reflexao_calibrada(colorSensor, preto, branco)
+         print("Reflexão calibrada:", Valor_calibração)
 
     print("************* Ronda: " + str(contador_rondas) + " *************")
     ev3.screen.clear()
