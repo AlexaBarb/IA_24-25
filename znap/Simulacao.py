@@ -25,14 +25,17 @@ localizacao_torradeira = [3,3] #localização da torradeira
 localizacao_manteiga = [5,2] #localização da manteiga
 distancia_manteiga = 11 #distancia da manteiga 0 - 10
 old_dist = 11 #antiga distancia da manteiga
+manteiga = [0,0]
+torradeira = [0,0]
+barreiras = []
 #---------------------------------------------------fim Inicio------------------------------------------> 
 
 
 #------------------------------------------------------------------------------------------------------> 
 #       Função deteta_manteaiga_bolor deteta  manteiga e agarra-a, ou se encontrar o bolor fica triste e desiste
 #------------------------------------------------------------------------------------------------------> 
-def deteta_manteiga(encontroMatrix):
-    if  encontroMatrix == True:    
+def deteta_manteiga():
+    if  manteiga == localizacao:
         print("Manteiga encontrada")
         sys.exit()
     
@@ -42,8 +45,8 @@ def deteta_manteiga(encontroMatrix):
 #------------------------------------------------------------------------------------------------------> 
 #       Função deteta_bolor deteta se encontrar o bolor fica triste e desiste
 #------------------------------------------------------------------------------------------------------> 
-def deteta_bolor(encontroMatrix):
-    if  encontroMatrix == True:
+def deteta_bolor():
+    if  localizacao == localizacao_bolor:
         print("Derrotado pelo bolor")
         sys.exit()
 #---------------------------------------------------fim deteta_bolor----------------------------------->
@@ -51,9 +54,10 @@ def deteta_bolor(encontroMatrix):
 #------------------------------------------------------------------------------------------------------> 
 #       Função deteta_torradeira se encontrar a torradeira espera 5 segundos a torrar
 #------------------------------------------------------------------------------------------------------> 
-def deteta_torradeira(encontroMatrix):
+def deteta_torradeira():
     global contador_rondas
-    if  encontroMatrix == True:
+    if  localizacao == torradeira:
+        torradeira = [0,0]
         contador_rondas+=1
         print("A torradeira está a tostar homem tosta")
         return False
@@ -64,19 +68,51 @@ def deteta_torradeira(encontroMatrix):
 #------------------------------------------------------------------------------------------------------> 
 #       Função deteta_barreira deteta as barreiras e tenta evita-las
 #------------------------------------------------------------------------------------------------------> 
-def deteta_barreira(encontroMatrix):
+def deteta_barreira():
     global next_dir_code
-    if  encontroMatrix == True:
-        print("Barreira encontrada")
-        #vira para a sul       
-        mini_rand_dir()   # escolhe uma direção aleatória esq ou dir
-        if not pode_andar():
-            if next_dir_code == 1:
-                next_dir_code = 3
-            elif next_dir_code == 3:
-                next_dir_code = 1
-        verifica_se_quer_virar() #chama para virar
-    
+    for i in barreiras:
+        if dir_code == 1:
+            if  localizacao[0] == barreiras[i][0]+0.5 and localizacao[1] == barreiras[i][1]:
+                print("Barreira encontrada")
+                mini_rand_dir()   # escolhe uma direção aleatória esq ou dir
+                if not pode_andar():
+                    if next_dir_code == 1:
+                        next_dir_code = 3
+                    elif next_dir_code == 3:
+                        next_dir_code = 1
+                verifica_se_quer_virar() #chama para virar
+        if dir_code == 2:
+            if  localizacao[0] == barreiras[i][0] and localizacao[1] == barreiras[i][1]-0.5:
+                print("Barreira encontrada")
+                mini_rand_dir()   # escolhe uma direção aleatória esq ou dir
+                if not pode_andar():
+                    if next_dir_code == 1:
+                        next_dir_code = 3
+                    elif next_dir_code == 3:
+                        next_dir_code = 1
+                verifica_se_quer_virar() #chama para virar
+        if dir_code == 3:
+            if  localizacao[0] == barreiras[i][0]-0.5 and localizacao[1] == barreiras[i][1]:
+                print("Barreira encontrada")
+                mini_rand_dir()   # escolhe uma direção aleatória esq ou dir
+                if not pode_andar():
+                    if next_dir_code == 1:
+                        next_dir_code = 3
+                    elif next_dir_code == 3:
+                        next_dir_code = 1
+                verifica_se_quer_virar() #chama para virar
+        if dir_code == 4:
+            if  localizacao[0] == barreiras[i][0] and localizacao[1] == barreiras[i][1]+0.5:
+                print("Barreira encontrada")
+                mini_rand_dir()   # escolhe uma direção aleatória esq ou dir
+                if not pode_andar():
+                    if next_dir_code == 1:
+                        next_dir_code = 3
+                    elif next_dir_code == 3:
+                        next_dir_code = 1
+                verifica_se_quer_virar() #chama para virar
+
+
 
 
 #---------------------------------------------------fim Deteta_barreira-------------------------------->
@@ -410,14 +446,23 @@ def compara_dist():
                 elif next_dir_code == 3:
                     next_dir_code = 1
                
-    
-    
+def barreiras():
+    global barreiras
+    for i in range(5):
+        barreiras = []
+        if randint(1,2) == 1:
+            barreiras.append([rand(1,5)+0.5, rand(1,6)])
+        else:
+            barreiras.apped([rand(1,6), rand(1,5)+0.5])
+
     
 
 #-------------------------------------------------------------------------------------------------------->
 # Ciclo de teste de código
 #-------------------------------------------------------------------------------------------------------->
-
+manteiga = input("Inserir a localização da manteira [x,y]: ")
+torradeira = input("Inserir localização da torradeira [x,y]: ")
+barreiras()
 while True:
     if contador_rondas == 0: #calibrar sensor de cor
          print("Calibração concluída.")
