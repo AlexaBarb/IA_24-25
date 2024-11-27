@@ -242,7 +242,7 @@ def emoji_triste():
 #cor barreiras -> vermelho
 #cor bolor -> verde
 #cor manteiga -> amarelo
-#cor torradeira -> azul 
+#cor torradeira -> vermelho 
 #---------------------------------------------------fim nota-------------------------------------------->
 
 #------------------------------------------------------------------------------------------------------> 
