@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------------------------------> 
 #                           imports das bibliotecas necessárias
 #------------------------------------------------------------------------------------------------------> 
-from random import randint
+from random import randint, random
 import sys
 
 
@@ -45,8 +45,8 @@ def deteta_manteiga():
 #------------------------------------------------------------------------------------------------------> 
 #       Função deteta_bolor deteta se encontrar o bolor fica triste e desiste
 #------------------------------------------------------------------------------------------------------> 
-def deteta_bolor():
-    if  localizacao == localizacao_bolor:
+def deteta_bolor(aux):
+    if  localizacao == localizacao_bolor or aux == True:
         print("Derrotado pelo bolor")
         sys.exit()
 #---------------------------------------------------fim deteta_bolor----------------------------------->
@@ -56,6 +56,7 @@ def deteta_bolor():
 #------------------------------------------------------------------------------------------------------> 
 def deteta_torradeira():
     global contador_rondas
+    global torradeira
     if  localizacao == torradeira:
         torradeira = [0,0]
         contador_rondas+=1
@@ -254,6 +255,25 @@ def verifica_se_quer_virar():
             rodar_direita()
             print("Vira para a direita: code -> " + str(dir_code) + " direção -> " + direcao)
 
+def deteta_barreira_1():
+    barreiras_fixas_ao_descer = [[2, 3], [3, 4], [4, 3], [5, 6]]
+    barreiras_fixas_a_direita = [2, 5]
+    global next_dir_code
+    for i in range(4):
+        #print(localizacao)
+        #print(barreiras_fixas_ao_descer[i])
+        if localizacao == barreiras_fixas_ao_descer[i] or localizacao == barreiras_fixas_a_direita:
+            #vira para a sul       
+            mini_rand_dir()   # escolhe uma direção aleatória esq ou dir
+            if not pode_andar():
+                if next_dir_code == 1:
+                    next_dir_code = 3
+                elif next_dir_code == 3:
+                    next_dir_code = 1
+            verifica_se_quer_virar() #chama para virar 
+            break;
+            
+
 #-------------------------------------------------------------------------------------------------------->
 # Função anda que, caso poder andar na direç o selecionada, ir  andar nessa direç o e atualizar a sua posiç o
 #-------------------------------------------------------------------------------------------------------->
@@ -261,7 +281,7 @@ def andar():
     print("Direção atual:  " + direcao + " code -> " + str(dir_code))
     verifica_se_quer_virar()
 
-    deteta_barreira()
+    deteta_barreira_1()
     
     mudaLocalizacao()
 
@@ -369,7 +389,7 @@ def dist_manteiga():
     while True:
         try:
             # Solicitar entrada do usuário
-            entrada = int(input("Cheirando 1-6 0 sair: "))
+            entrada = int(input("Cheirando 1-6 (0 sair): "))
             
             # Verificar a entrada e atualizar a variável
             if entrada == 0:
@@ -402,7 +422,7 @@ def dist_manteiga():
         
         try:
             # Solicitar entrada do usuário
-            entrada = int(input("Cheiro torradeira 1 (1 casa) 0 sair: "))
+            entrada = int(input("Cheiro torradeira 1 (1 casa)(0 sair): "))
             # Verificar a entrada e atualizar a variável
             if entrada == 0:
                 print("Saindo...")
@@ -451,9 +471,9 @@ def barreiras():
     for i in range(5):
         barreiras = []
         if randint(1,2) == 1:
-            barreiras.append([rand(1,5)+0.5, rand(1,6)])
+            barreiras.append([random.randint(1, 5)+0.5, random.randint(1, 6)])
         else:
-            barreiras.apped([rand(1,6), rand(1,5)+0.5])
+            barreiras.apped([random.randint(1, 6), random.randint(1, 5)+0.5])
 
     
 
@@ -462,7 +482,7 @@ def barreiras():
 #-------------------------------------------------------------------------------------------------------->
 manteiga = input("Inserir a localização da manteira [x,y]: ")
 torradeira = input("Inserir localização da torradeira [x,y]: ")
-barreiras()
+#barreiras() erro
 while True:
     if contador_rondas == 0: #calibrar sensor de cor
          print("Calibração concluída.")
