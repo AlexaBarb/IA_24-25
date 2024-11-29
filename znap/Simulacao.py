@@ -23,13 +23,16 @@ contador_rondas = 0
 localizacao_bolor = [6,6] # localização do bolor inicial
 distancia_manteiga = 11 #distancia da manteiga 0 - 10
 old_dist = 11 #antiga distancia da manteiga
+#info matriz
 manteiga = [0,0] 
 torradeira = [0,0]
 barreiras = []
+#info adquirida robô
 possible_manteiga=[]
 found_manteiga=[0,0]
 particulas_mas=False
 posicoes_torradeira = []
+found_torradeira =[0,0]
 calor = False
 for i in range(6):
     for j in range(6):
@@ -686,12 +689,20 @@ def gps(alvo):
 def torradeira_onde_andas():
     global posicoes_torradeira
 
+    if not deteta_torradeira():# o robo está na torradeira
+        found_torradeira = localizacao
+        return 0
+
     for i in range(len(posicoes_torradeira)):
             if posicoes_torradeira[i][0] == localizacao_bolor[0] and posicoes_torradeira[i][1] == localizacao_bolor[1]:
                 posicoes_torradeira[i].pop
-            if posicoes_torradeira[i][0] == localizacao[0] and posicoes_torradeira[i][1] == localizacao[1]: #element
+            if posicoes_torradeira[i][0] == localizacao[0] and posicoes_torradeira[i][1] == localizacao[1] and deteta_torradeira(): #element
                 posicoes_torradeira[i].pop
-            print("estou a pensar nas posicoes da torradeira")
+
+    
+
+            
+    print("estou a pensar nas posicoes da torradeira")        
                 
     if calor:
         for i in range(1,7):
@@ -716,7 +727,11 @@ while True:
          print("Calibração concluída.")
 
     print("************* Ronda: " + str(contador_rondas) + " *************")
-    torradeira_onde_andas()
+    if found_torradeira == [0,0]:
+        torradeira_onde_andas()
+    else:
+        print("Posição Torradeira: " + str(found_torradeira))
+        
     if deteta_torradeira():
         retry = True
         if contador_rondas == 0:
