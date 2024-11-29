@@ -21,16 +21,19 @@ next_dir_code = 0         #código da proxima
 #inicialização de variavel para começar o jogo
 contador_rondas = 0
 localizacao_bolor = [6,6] # localização do bolor inicial
-localizacao_torradeira = [3,3] #localização da torradeira
-localizacao_manteiga = [5,2] #localização da manteiga
 distancia_manteiga = 11 #distancia da manteiga 0 - 10
 old_dist = 11 #antiga distancia da manteiga
-manteiga = [0,0]
+manteiga = [0,0] 
 torradeira = [0,0]
 barreiras = []
 possible_manteiga=[]
 found_manteiga=[0,0]
 particulas_mas=False
+posicoes_torradeira = []
+calor = False
+for i in range(6):
+    for j in range(6):
+        posicoes_torradeira.append([i+1,j+1])
 #---------------------------------------------------fim Inicio------------------------------------------> 
 
 
@@ -38,7 +41,7 @@ particulas_mas=False
 #       Função deteta_manteaiga_bolor deteta  manteiga e agarra-a, ou se encontrar o bolor fica triste e desiste
 #------------------------------------------------------------------------------------------------------> 
 def deteta_manteiga():
-    if  manteiga == localizacao:
+    if  localizacao_manteiga == localizacao:
         print("Manteiga encontrada")
         sys.exit()
     
@@ -337,7 +340,7 @@ def mostrar_localizacao(localizacao, localizacao_manteiga, localizacao_torradeir
             elif i == xm and j == ym:
                 linha += "| M "
             elif i == xt and j == yt:
-                linha += "| T "        
+                linha += "| T "  
             else:
                 linha += "|   "  # Célula vazia
         linha += "|"  # Final da linha
@@ -400,6 +403,7 @@ def dist_manteiga():
     global next_dir_code
     global distancia_manteiga
     global old_dist #distancia anterior
+    global calor
     print("Cheirando")
     while True:
         try:
@@ -444,6 +448,8 @@ def dist_manteiga():
                 break
             elif entrada == 1:
                 print("Torradeira está perto") # 1 casa
+                calor = True
+                break
 
         except ValueError:
 
@@ -486,7 +492,7 @@ def barreiras():
         if randint(1,2) == 1:
             barreiras.append([random.randint(1, 5)+0.5, random.randint(1, 6)])
         else:
-            barreiras.apped([random.randint(1, 6), random.randint(1, 5)+0.5])
+            barreiras.append([random.randint(1, 6), random.randint(1, 5)+0.5])
 
 def manteiga_triangulator():
     print("Entrei no triangulador")
@@ -570,72 +576,147 @@ def gonna_get_manteiga():
     
 def fugir_bolor():
     global next_dir_code
-    if localizacao[0] == localizacao_bolor[0]:
-        if localizacao[0] > localizacao_bolor[0] and localizacao[0] != 6:
-            if dir_code == 1:
-                next_dir_code = 4
-            elif dir_code == 2:
-                next_dir_code = 3
-            elif dir_code == 3:
-                next_dir_code = 2
-            elif dir_code == 4:
-                next_dir_code = 1
-            return 0
-        elif localizacao[0] != 1:
-            if dir_code == 1:
-                next_dir_code = 2
-            elif dir_code == 2:
-                next_dir_code = 1
-            elif dir_code == 3:
-                next_dir_code = 4
-            elif dir_code == 4:
-                next_dir_code = 3
-            return 0
-    if localizacao[1] != localizacao_bolor[1]:
-        if localizacao[1] > localizacao_bolor[1] and localizacao[1] != 6:
-            if dir_code == 1:
-                next_dir_code = 3
-            elif dir_code == 2:
-                next_dir_code = 2
-            elif dir_code == 3:
-                next_dir_code = 1
-            elif dir_code == 4:
-                next_dir_code = 4
-            return 0
-        elif localizacao[1] != 1:
-            if dir_code == 1:
-                next_dir_code = 1
-            elif dir_code == 2:
-                next_dir_code = 4
-            elif dir_code == 3:
-                next_dir_code = 3
-            elif dir_code == 4:
-                next_dir_code = 2
-        else: 
-            if dir_code == 1:
-                next_dir_code = 4
-            elif dir_code == 2:
-                next_dir_code = 3
-            elif dir_code == 3:
-                next_dir_code = 2
-            elif dir_code == 4:
-                next_dir_code = 1
-            return 0
 
+    bolor = gps(localizacao_bolor)
+    manteiga = gps(found_manteiga)
+
+    if (bolor < manteiga and found_manteiga != [0,0]) or found_manteiga != [0,0]:
+        # procura qual direção é a que está mais proxima
+        mindist = localizacao[0] - localizacao_bolor[0]
+        
+        if localizacao_bolor[0] - localizacao[0] < mindist:
+            mindist = localizacao_bolor[0] - localizacao[0]
+
+        if localizacao[1] - localizacao_bolor[1] < mindist:
+            mindist = localizacao[1] - localizacao_bolor[1]
+
+        if localizacao_bolor[1] - localizacao[1] < mindist:
+            mindist = localizacao_bolor[1] - localizacao[1]
+        #escolhe uma localização aleatoria para se afastar
+        next_dir_code = random_menos_este_num(mindist)
+
+        if not pode_andar():
+             while True: #alexandra não vejas o while True (e foi o ADRENALINO :p que pos)
+                next_dir_code = random_menos_este_num(mindist)
+                if pode_andar():
+                    break
+        return 0
+    elif bolor >= manteiga:
+        gonna_get_manteiga()
+    else:
+        print('I dont know what to do now')
+        
+        '''
+        if localizacao[0] == localizacao_bolor[0]:
+            if localizacao[0] > localizacao_bolor[0] and localizacao[0] != 6:
+                if dir_code == 1:
+                    next_dir_code = 4
+                elif dir_code == 2:
+                    next_dir_code = 3
+                elif dir_code == 3:
+                    next_dir_code = 2
+                elif dir_code == 4:
+                    next_dir_code = 1
+                return 0
+            elif localizacao[0] != 1:
+                if dir_code == 1:
+                    next_dir_code = 2
+                elif dir_code == 2:
+                    next_dir_code = 1
+                elif dir_code == 3:
+                    next_dir_code = 4
+                elif dir_code == 4:
+                    next_dir_code = 3
+                return 0
+        if localizacao[1] != localizacao_bolor[1]:
+            if localizacao[1] > localizacao_bolor[1] and localizacao[1] != 6:
+                if dir_code == 1:
+                    next_dir_code = 3
+                elif dir_code == 2:
+                    next_dir_code = 2
+                elif dir_code == 3:
+                    next_dir_code = 1
+                elif dir_code == 4:
+                    next_dir_code = 4
+                return 0
+            elif localizacao[1] != 1:
+                if dir_code == 1:
+                    next_dir_code = 1
+                elif dir_code == 2:
+                    next_dir_code = 4
+                elif dir_code == 3:
+                    next_dir_code = 3
+                elif dir_code == 4:
+                    next_dir_code = 2
+            else: 
+                if dir_code == 1:
+                    next_dir_code = 4
+                elif dir_code == 2:
+                    next_dir_code = 3
+                elif dir_code == 3:
+                    next_dir_code = 2
+                elif dir_code == 4:
+                     next_dir_code = 1 
+                return 0
+                '''
+                
+            
+def random_menos_este_num (nao_te_quero):
+    rand_num = randint(1,3)
+    if nao_te_quero == 1:
+        return rand_num+1
+    elif nao_te_quero == 2:
+        if rand_num != 1:
+            return rand_num+1
+        else:
+            return rand_num
+    elif nao_te_quero == 3:
+        if rand_num != 2:
+            return rand_num+1
+        else:
+            return rand_num
+    elif nao_te_quero == 4:  
+        return rand_num
+        
+def gps(alvo):
+    distancia = modulo(localizacao[0] - alvo[0]) + modulo(localizacao[1] - alvo[1])
+    return distancia
+
+
+def torradeira_onde_andas():
+    global posicoes_torradeira
+
+    for i in range(len(posicoes_torradeira)):
+            if posicoes_torradeira[i][0] == localizacao_bolor[0] and posicoes_torradeira[i][1] == localizacao_bolor[1]:
+                posicoes_torradeira[i].pop
+            if posicoes_torradeira[i][0] == localizacao[0] and posicoes_torradeira[i][1] == localizacao[1]: #element
+                posicoes_torradeira[i].pop
+            print("estou a pensar nas posicoes da torradeira")
+                
+    if calor:
+        for i in range(1,7):
+            for i in range(1,7):
+                if ((i != (localizacao[0] + 1)) or (i != (localizacao[0] - 1))) and ((j != (localizacao[1] + 1)) or (j != (localizacao[1] - 1))): #esta sequencia parece perigosa se a alexandra vir
+                    posicoes_torradeira[i,j].pop                
+                
+    print("Possível posições torradeira: " + str(posicoes_torradeira)) 
+
+            
 #-------------------------------------------------------------------------------------------------------->
 # Ciclo de teste de código
 #-------------------------------------------------------------------------------------------------------->
 #manteiga = input("Inserir a localização da manteira x,y: ")
-localizacao_manteiga = [4,3]#.append(int(x) for x in manteiga.split(","))
+localizacao_manteiga = [3,3]#.append(int(x) for x in manteiga.split(","))
 #torradeira = input("Inserir localização da torradeira x,y: ")
-localizacao_torradeira = [3,5]#.append(int(x) for x in torradeira.split(","))
+localizacao_torradeira = [3,5]#.ap2
+#pend(int(x) for x in torradeira.split(","))
 #barreiras() erro
 while True:
     if contador_rondas == 0: #calibrar sensor de cor
          print("Calibração concluída.")
 
     print("************* Ronda: " + str(contador_rondas) + " *************")
-    
+    torradeira_onde_andas()
     if deteta_torradeira():
         retry = True
         if contador_rondas == 0:
