@@ -34,9 +34,11 @@ particulas_mas=False
 posicoes_torradeira = []
 found_torradeira =[0,0]
 calor = False
+os_cheiros_anteriores = []
 for i in range(6):
     for j in range(6):
         posicoes_torradeira.append([i+1,j+1])
+
 #---------------------------------------------------fim Inicio------------------------------------------> 
 
 
@@ -447,7 +449,7 @@ def dist_manteiga():
             entrada = int(input("Cheiro torradeira 1 (1 casa)(0 sair): "))
             # Verificar a entrada e atualizar a variável
             if entrada == 0:
-                print("Saindo...")
+                #print("Saindo...")
                 break
             elif entrada == 1:
                 print("Torradeira está perto") # 1 casa
@@ -458,7 +460,7 @@ def dist_manteiga():
 
             print("Por favor, insira um número válido.")    
                 
-    compara_dist()
+    
 
 def compara_dist():
     global next_dir_code
@@ -476,18 +478,37 @@ def compara_dist():
     elif old_dist >= distancia_manteiga:
         print("Caminho mais perto da manteiga")
         print("Distancia da manteiga: " + str(distancia_manteiga))
-        next_dir_code = 2
-        if ((localizacao[1] == 6 and dir_code == 2) or (localizacao[0] == 6 and dir_code == 3) or 
-            (localizacao[1] == 1 and dir_code == 4) or (localizacao[0] == 1 and dir_code == 1)):
+        rand_dir()
+        #if ((localizacao[1] == 6 and dir_code == 2) or (localizacao[0] == 6 and dir_code == 3) or 
+         #   (localizacao[1] == 1 and dir_code == 4) or (localizacao[0] == 1 and dir_code == 1)):
+        if not pode_andar() or ja_tive_aqui_e_nao_gostei(next_dir_code):
             print("Não posso andar")
-            mini_rand_dir()   # escolhe uma direção aleatória esq ou dir
-            if not pode_andar():
-                print("mini errado")
-                if next_dir_code == 1:
-                    next_dir_code = 3
-                elif next_dir_code == 3:
-                    next_dir_code = 1
-               
+            rand_dir()   # escolhe uma direção aleatória esq ou dir
+            countingWhiles = 0
+            while not pode_andar() and ja_tive_aqui_e_nao_gostei(next_dir_code): # Leandro não esteve aqui
+                countingWhiles +=1 
+                if countingWhiles < 3:
+                    rand_dir()
+                else:
+                    while not pode_andar():
+                        rand_dir()
+
+
+def ja_tive_aqui_e_nao_gostei(nexta_direcao):
+    localVirtual = localizacao
+    if nexta_direcao == 1:
+        localVirtual[0] -= 1
+    elif nexta_direcao == 2:
+        localVirtual[1] += 1
+    elif nexta_direcao == 3:
+        localVirtual[0] += 1
+    elif nexta_direcao == 4:
+        localVirtual[1] -= 1
+    for i in range(len(os_cheiros_anteriores)):
+        if os_cheiros_anteriores[i] == localVirtual:
+            return True
+    return False
+
 def barreiras():
     global barreiras
     for i in range(5):
@@ -583,7 +604,7 @@ def fugir_bolor():
     bolor = gps(localizacao_bolor)
     manteiga = gps(found_manteiga)
 
-    if (bolor < manteiga and found_manteiga != [0,0]) or found_manteiga != [0,0]:
+    if (bolor < manteiga and found_manteiga != [0,0]) or found_manteiga == [0,0]:
         # procura qual direção é a que está mais proxima
         mindist = localizacao[0] - localizacao_bolor[0]
         
@@ -604,65 +625,10 @@ def fugir_bolor():
                 if pode_andar():
                     break
         return 0
-    elif bolor >= manteiga:
+    elif bolor >= manteiga and found_manteiga != [0,0]:
         gonna_get_manteiga()
     else:
         print('I dont know what to do now')
-        
-        '''
-        if localizacao[0] == localizacao_bolor[0]:
-            if localizacao[0] > localizacao_bolor[0] and localizacao[0] != 6:
-                if dir_code == 1:
-                    next_dir_code = 4
-                elif dir_code == 2:
-                    next_dir_code = 3
-                elif dir_code == 3:
-                    next_dir_code = 2
-                elif dir_code == 4:
-                    next_dir_code = 1
-                return 0
-            elif localizacao[0] != 1:
-                if dir_code == 1:
-                    next_dir_code = 2
-                elif dir_code == 2:
-                    next_dir_code = 1
-                elif dir_code == 3:
-                    next_dir_code = 4
-                elif dir_code == 4:
-                    next_dir_code = 3
-                return 0
-        if localizacao[1] != localizacao_bolor[1]:
-            if localizacao[1] > localizacao_bolor[1] and localizacao[1] != 6:
-                if dir_code == 1:
-                    next_dir_code = 3
-                elif dir_code == 2:
-                    next_dir_code = 2
-                elif dir_code == 3:
-                    next_dir_code = 1
-                elif dir_code == 4:
-                    next_dir_code = 4
-                return 0
-            elif localizacao[1] != 1:
-                if dir_code == 1:
-                    next_dir_code = 1
-                elif dir_code == 2:
-                    next_dir_code = 4
-                elif dir_code == 3:
-                    next_dir_code = 3
-                elif dir_code == 4:
-                    next_dir_code = 2
-            else: 
-                if dir_code == 1:
-                    next_dir_code = 4
-                elif dir_code == 2:
-                    next_dir_code = 3
-                elif dir_code == 3:
-                    next_dir_code = 2
-                elif dir_code == 4:
-                     next_dir_code = 1 
-                return 0
-                '''
-                
             
 def random_menos_este_num (nao_te_quero):
     rand_num = randint(1,3)
@@ -688,38 +654,59 @@ def gps(alvo):
 
 def torradeira_onde_andas():
     global posicoes_torradeira
+    array_temp_torradeira = []
+    #temp_n_calor = []
+    #temp_n_calor.append(localizacao[0], localizacao[1] - 1) 
+    #temp_n_calor.append(localizacao[0] + 1, localizacao[1]) 
+    #temp_n_calor.append(localizacao[0], localizacao[1] + 1) 
+    #temp_n_calor.append(localizacao[0] - 1, localizacao[1]) 
+    
+    #print("posiçoes possiveis pre copiar: " + str(posicoes_torradeira)) 
 
     if not deteta_torradeira():# o robo está na torradeira
         found_torradeira = localizacao
         return 0
 
     for i in range(len(posicoes_torradeira)):
-            if posicoes_torradeira[i][0] == localizacao_bolor[0] and posicoes_torradeira[i][1] == localizacao_bolor[1]:
-                posicoes_torradeira[i].pop
-            if posicoes_torradeira[i][0] == localizacao[0] and posicoes_torradeira[i][1] == localizacao[1] and deteta_torradeira(): #element
-                posicoes_torradeira[i].pop
-
+        if (not(posicoes_torradeira[i][0] == localizacao_bolor[0] and posicoes_torradeira[i][1] == localizacao_bolor[1]) and 
+        not (posicoes_torradeira[i][0] == localizacao[0] and posicoes_torradeira[i][1] == localizacao[1]) and 
+        not (posicoes_torradeira[i][0] == found_manteiga[0] and posicoes_torradeira[i][1] == found_manteiga[1])): 
+            if not calor:
+                if  not ((posicoes_torradeira[i][0] == localizacao[0]+1 and posicoes_torradeira[i][1] == localizacao[1]) or 
+                 (posicoes_torradeira[i][0] == localizacao[0]-1 and posicoes_torradeira[i][1] == localizacao[1]) or
+                  (posicoes_torradeira[i][0] == localizacao[0] and posicoes_torradeira[i][1] == localizacao[1]+1) or
+                   (posicoes_torradeira[i][0] == localizacao[0] and posicoes_torradeira[i][1] == localizacao[1]-1)):
+                    array_temp_torradeira.append(posicoes_torradeira[i]) 
+            else:
+                array_temp_torradeira.append(posicoes_torradeira[i])
     
-
-            
+    
+    posicoes_torradeira = array_temp_torradeira
+    
     print("estou a pensar nas posicoes da torradeira")        
-                
+    
     if calor:
         for i in range(1,7):
             for i in range(1,7):
                 if ((i != (localizacao[0] + 1)) or (i != (localizacao[0] - 1))) and ((j != (localizacao[1] + 1)) or (j != (localizacao[1] - 1))): #esta sequencia parece perigosa se a alexandra vir
-                    posicoes_torradeira[i,j].pop                
-                
+                    #posicoes_torradeira[i,j].pop   
+                    print("completamente ignorado")      
+
     print("Possível posições torradeira: " + str(posicoes_torradeira)) 
+
+def a_que_cheirava_aqui():
+    os_cheiros_anteriores.append(localizacao,distancia_manteiga)
+    
 
             
 #-------------------------------------------------------------------------------------------------------->
 # Ciclo de teste de código
 #-------------------------------------------------------------------------------------------------------->
 #manteiga = input("Inserir a localização da manteira x,y: ")
-localizacao_manteiga = [3,3]#.append(int(x) for x in manteiga.split(","))
+#x = random.randint(1, 6)
+localizacao_manteiga = [randint(2, 5),randint(2, 5)]#.append(int(x) for x in manteiga.split(","))
 #torradeira = input("Inserir localização da torradeira x,y: ")
-localizacao_torradeira = [3,5]#.ap2
+localizacao_torradeira = [randint(2, 5),randint(2, 5)]#.ap2
 #pend(int(x) for x in torradeira.split(","))
 #barreiras() erro
 while True:
@@ -740,11 +727,13 @@ while True:
                 if pode_andar():
                     retry = False
         else:
-            if particulas_mas and not ((modulo(localizacao[0] - found_manteiga[0]) + modulo(localizacao[1] - found_manteiga[1])) == 1):
+            if particulas_mas and not ((modulo(localizacao[0] - found_manteiga[0]) + modulo(localizacao[1] - found_manteiga[1])) <= 1):
+                dist_manteiga()
                 fugir_bolor()
                 time.sleep(5)
             elif found_manteiga == [0,0]:
                 dist_manteiga()
+                compara_dist()
             else:
                 gonna_get_manteiga()
                
