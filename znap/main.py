@@ -96,9 +96,6 @@ def deteta_manteiga():
         #ev3.screen.draw_text(50, 60, "A procura da Manteiga")
         print("A procura da Manteiga")
         return False
-
-#---------------------------------------------------fim Deteta_agarra_manteiga-------------------------> 
-
         sys.exit()
     else:
         # Limpar a tela antes de desenhar

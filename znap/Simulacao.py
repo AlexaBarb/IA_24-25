@@ -35,6 +35,7 @@ posicoes_torradeira = []
 found_torradeira =[0,0]
 calor = False
 ja_esperou = True
+posLegais = []
 os_cheiros_anteriores = []
 for i in range(6):
     for j in range(6):
@@ -110,6 +111,7 @@ def mini_rand_dir():
 def pode_andar(): #função que verifica se é possível andar na direção indicada
     #print(str(dir_code) + "atual")
     #print(str(next_dir_code) + "next")
+    global posLegais
     if localizacao[0] <= 1: #se encontra-se no 1 quadrado/primeira linha e testa para a norte
         if dir_code == 2 and next_dir_code == 1:
             return False
@@ -139,7 +141,7 @@ def pode_andar(): #função que verifica se é possível andar na direção indi
             return False
         if dir_code == 4 and next_dir_code == 2:
             return False
-        #print("passei do localização[1]")   
+        #print("passei do localizacao[1]")   
     return True
 #---------------------------------------------------fim pode_andar------------------------------------>
 
@@ -416,11 +418,49 @@ def bolor_calculator():
         print("Localização do bolor: " + str(localizacao_bolor))
         return 0
     
+    #compara dist para ele ir pra a manteiga  
+def preenchePosLegais():
+    global posLegais
+    if localizacao == [1,1]:
+        posLegais = [2,3]
+    elif localizacao == [1,6]:
+        posLegais = [3,4]
+    elif localizacao == [6,6]:  
+        posLegais = [1,4]
+    elif localizacao == [6,1]:
+        posLegais = [1,2]
+    elif localizacao[0] == 1:
+        posLegais = [2,3,4]
+    elif localizacao[0] == 6:
+        posLegais = [1,2,4] 
+    elif localizacao[1] == 1:
+        posLegais = [1,2,3]
+    elif localizacao[1]== 6:
+        posLegais = [1,3,4]
+    else:
+        posLegais = [1,2,3,4]
+       
+        
+                          
+def passeando():
+        tempDir = randint(0,len(posLegais)-1)
+        posEscolhida = posLegais[tempDir]
+        print("                        vo ir para aqui -> " + str(posEscolhida))
+        print("conta: " + str(posEscolhida) + "-" + str(dir_code) + "=" + str(posEscolhida - dir_code))
+        if (posEscolhida - dir_code) == 0:
+            return 2
+        elif (posEscolhida - dir_code) == 1:
+            return 3
+        elif (posEscolhida - dir_code) == -1:
+            return 1
+        else:
+            return 4
+
 def compara_dist():
     global next_dir_code
     global old_dist
     print("Distancia anteriror da manteiga: " + str(old_dist))
-
+    '''
     if old_dist < distancia_manteiga:
         print("Caminho mais longe da manteiga")
         print("Distancia atual da manteiga: " + str(distancia_manteiga))
@@ -432,10 +472,14 @@ def compara_dist():
             if pode_andar():
                 retry = False
     elif old_dist >= distancia_manteiga:
-        print("Caminho mais perto da manteiga")
-        print("Distancia da manteiga: " + str(distancia_manteiga))
-     #---->   
-        rand_dir()
+    '''
+    print("Caminho mais perto da manteiga")
+    print("Distancia da manteiga: " + str(distancia_manteiga)) 
+    preenchePosLegais()
+    print("____________________________________________________________Posições Legais: " + str(posLegais))
+    next_dir_code = passeando()
+    '''
+        rand_dir() #da uma direção 
         if ((localizacao[1] == 6 and dir_code == 2) or (localizacao[0] == 6 and dir_code == 3) or 
             (localizacao[1] == 1 and dir_code == 4) or (localizacao[0] == 1 and dir_code == 1)):
             if not pode_andar() or ja_tive_aqui_e_nao_gostei(next_dir_code):
@@ -449,67 +493,69 @@ def compara_dist():
                     else:
                         while not pode_andar():
                             rand_dir()
+                            '''
+    print("Saida do compara_dist: " + str(next_dir_code))
 
-    #compara dist para ele ir pra a manteiga                        
-                        
-       
 def dist_manteiga():
     global next_dir_code
     global distancia_manteiga
     global old_dist #distancia anterior
     global calor
     #print("Cheirando")
-    while True:
-        try:
-            # Solicitar entrada do cheiro da manteiga
-            entrada = int(input("Cheirando 1-6 (0 sair): "))
+    #while True:
+    try:
+        # Solicitar entrada do cheiro da manteiga
+        #entrada = int(input("Cheirando 1-6 (0 sair): "))
+        entrada = gps(localizacao_manteiga)
+
+        # Verificar a entrada e atualizar a variável
+        if entrada == 0:
+            print("Saindo...")
+            #break
+        elif entrada == 1:
+            distancia_manteiga = 1
             
-            # Verificar a entrada e atualizar a variável
-            if entrada == 0:
-                print("Saindo...")
-                break
-            elif entrada == 1:
-                distancia_manteiga = 1
-                
-            elif entrada == 2:
-                distancia_manteiga = 2
-                
-            elif entrada == 3:
-                distancia_manteiga = 3
-                
-            elif entrada == 4:
-                distancia_manteiga = 4
-                
-            elif entrada == 5:
-                distancia_manteiga = 5
-                
-            elif entrada == 6:
-                distancia_manteiga = 6
-                
-            else:
-                print("Entrada inválida. Digite um número entre 1 e 6.")
-        
-        except ValueError:
+        elif entrada == 2:
+            distancia_manteiga = 2
+            
+        elif entrada == 3:
+            distancia_manteiga = 3
+            
+        elif entrada == 4:
+            distancia_manteiga = 4
+            
+        elif entrada == 5:
+            distancia_manteiga = 5
+            
+        elif entrada == 6:
+            distancia_manteiga = 6
+            
+        else:
+            print("Entrada inválida. Digite um número entre 1 e 6.")
+    
+    except ValueError:
 
-                print("Por favor, insira um número válido.")
-        
-        try:
-            # Solicitar entrada do usuário
-            entrada = int(input("Cheiro torradeira 1 (1 casa)(0 sair): "))
-            # Verificar a entrada e atualizar a variável
-            if entrada == 0:
-                #print("Saindo...")
-                break
-            elif entrada == 1:
-                print("Torradeira está perto") # 1 casa
-                calor = True
-                break
+            print("Por favor, insira um número válido.")
+    
+    try:
+        '''
+        # Solicitar entrada do usuário
+        entrada = int(input("Cheiro torradeira 1 (1 casa)(0 sair): "))
+        # Verificar a entrada e atualizar a variável
+        if entrada == 0:
+            #print("Saindo...")
+            break
+        elif entrada == 1:
+            print("Torradeira está perto") # 1 casa
+            calor = True
+            break
+        '''
 
-        except ValueError:
+    except ValueError:
 
-            print("Por favor, insira um número válido.")    
-                
-    compara_dist() #não elim   
+        print("Por favor, insira um número válido.")    
+            
+    #compara_dist() #não elim   
 
 
 
@@ -703,28 +749,29 @@ def torradeira_onde_andas():
     if not deteta_torradeira():# o robo está na torradeira
         found_torradeira = localizacao
         return 0
-
+    if calor:
+        print("tá quentinho")
     for i in range(len(posicoes_torradeira)):
         if (not(posicoes_torradeira[i][0] == localizacao_bolor[0] and posicoes_torradeira[i][1] == localizacao_bolor[1]) and 
         not (posicoes_torradeira[i][0] == localizacao[0] and posicoes_torradeira[i][1] == localizacao[1]) and 
         not (posicoes_torradeira[i][0] == found_manteiga[0] and posicoes_torradeira[i][1] == found_manteiga[1])): 
             if not calor:
                 if  not (cruz(i)):
-                    print("Vendo posição: " + str(posicoes_torradeira[i]))
+                    #print("Vendo posição: " + str(posicoes_torradeira[i]))
                     array_temp_torradeira.append(posicoes_torradeira[i]) 
             elif calor:
-                print("tá quentinho")
+                
                 if (cruz(i)):
-                    print("tá na cruz")
+                    #print("tá na cruz")
                     array_temp_torradeira.append(posicoes_torradeira[i])
                 
-    print("Array temporario: " + str(array_temp_torradeira))
+    #print("Array temporario: " + str(array_temp_torradeira))
     
     posicoes_torradeira = array_temp_torradeira
     
     #print("estou a pensar nas posicoes da torradeira")     
 
-    print("Possível posições torradeira: " + str(posicoes_torradeira)) 
+    #print("Possível posições torradeira: " + str(posicoes_torradeira)) 
 
 
 
@@ -745,8 +792,12 @@ print("info dev localização torradeira:" + str(localizacao_torradeira))
 while True:
     if contador_rondas == 0: #calibrar sensor de cor
          print("Calibração concluída.")
-
+    if gps(localizacao_torradeira) == 1:
+        calor = True
+    else:
+        calor = False
     print("************* Ronda: " + str(contador_rondas) + " *************")
+    mostrar_localizacao(localizacao, localizacao_manteiga, localizacao_torradeira)
     if found_torradeira == [0,0]:
         torradeira_onde_andas()
     else:
@@ -762,11 +813,13 @@ while True:
         else:
             if particulas_mas and not ((modulo(localizacao[0] - found_manteiga[0]) + modulo(localizacao[1] - found_manteiga[1])) < 3):
                 #print("Fugindo")
+                print("cheiro: " + str(gps(localizacao_manteiga)))
                 dist_manteiga()
                 fugir_bolor()
                 time.sleep(5)
             elif found_manteiga == [0,0]:
                 #print("Manteigando")
+                print("cheiro: " + str(gps(localizacao_manteiga)))
                 dist_manteiga()
                 compara_dist()
             else:
@@ -785,7 +838,7 @@ while True:
         print("Localizacao atual do robo: " + str(localizacao))  # imprimi a localização atual
     bolor_calculator()
     print("Possiveis posições da manteiga" + str(possible_manteiga))
-    mostrar_localizacao(localizacao, localizacao_manteiga, localizacao_torradeira)
+    
     contador_rondas += 1
     old_dist = distancia_manteiga
     if localizacao_bolor == localizacao_torradeira:
@@ -794,6 +847,6 @@ while True:
     if localizacao_manteiga == localizacao_bolor:
         print("A manteiga foi comida")
         break
-    if found_manteiga != [0,0]:
-        time.sleep(5)
+    #if found_manteiga != [0,0]:
+    time.sleep(5)
     print("----------------------------------------------------------------->")
