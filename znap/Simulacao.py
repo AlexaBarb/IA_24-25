@@ -48,13 +48,13 @@ for i in range(6):
 #       Função deteta_manteaiga_bolor deteta  manteiga e agarra-a, ou se encontrar o bolor fica triste e desiste
 #------------------------------------------------------------------------------------------------------> 
 def deteta_manteiga():
-    if  localizacao_manteiga == localizacao:
+    if localizacao_manteiga == localizacao_bolor:
+        print("Derrotado pelo bolor")
+        sys.exit()  
+    elif  localizacao_manteiga == localizacao:
         print("O robô esta: " + str(localizacao))
         print("Manteiga encontrada")
         sys.exit()  
-    elif localizacao_manteiga == localizacao_bolor:
-        print("Derrotado pelo bolor")
-        sys.exit()    
     
 
 #---------------------------------------------------fim Deteta_agarra_manteiga-------------------------> 
@@ -393,7 +393,7 @@ def bolor_calculator():
     if caminhos["oeste"] < min_local: #4
         min_local = caminhos["oeste"] #4
     print("Distância até ao bolor: " + str(min_local))
-    if min_local <= 2:
+    if min_local <= 1:
         particulas_mas = True
         print("A " + str(min_local) + " casas do bolor")
     if caminhos["norte"] == min_local:
@@ -642,7 +642,7 @@ def gonna_get_manteiga(alvo):
             elif dir_code == 2:
                 next_dir_code = 3
             elif dir_code == 3:
-                next_dir_code = 1
+                next_dir_code = 2
             elif dir_code == 4:
                 next_dir_code = 1
     elif localizacao[1] != alvo[1]:
@@ -659,11 +659,12 @@ def gonna_get_manteiga(alvo):
             if dir_code == 1:
                 next_dir_code = 3
             elif dir_code == 2:
-                next_dir_code = 1
+                next_dir_code = 2
             elif dir_code == 3:
                 next_dir_code = 1
             elif dir_code == 4:
                 next_dir_code = 4
+    print("...............................vou ir pa: " + str(next_dir_code))
 
 def gps(alvo):
     distancia = modulo(localizacao[0] - alvo[0]) + modulo(localizacao[1] - alvo[1])
@@ -763,6 +764,9 @@ def torradeira_onde_andas():
                 if (cruz(i)):
                     #print("tá na cruz")
                     array_temp_torradeira.append(posicoes_torradeira[i])
+        
+    
+    print("Posições torradeira: " + str(posicoes_torradeira))            
                 
     #print("Array temporario: " + str(array_temp_torradeira))
     
@@ -810,7 +814,7 @@ while True:
                 if pode_andar():
                     retry = False
         else:
-            if particulas_mas and not ((modulo(localizacao[0] - found_manteiga[0]) + modulo(localizacao[1] - found_manteiga[1])) < 3):
+            if particulas_mas and not ((modulo(localizacao[0] - found_manteiga[0]) + modulo(localizacao[1] - found_manteiga[1])) < 2):
                 #print("Fugindo")
                 print("cheiro: " + str(gps(localizacao_manteiga)))
                 dist_manteiga()
