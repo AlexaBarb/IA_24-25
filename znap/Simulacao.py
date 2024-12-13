@@ -477,6 +477,9 @@ def compara_dist():
     preenchePosLegais()
     print("____________________________________________________________Posições Legais: " + str(posLegais))
     next_dir_code = passeando()
+    if ja_tive_aqui_e_nao_gostei(next_dir_code):
+        next_dir_code = passeando()
+
     '''
         rand_dir() #da uma direção 
         if ((localizacao[1] == 6 and dir_code == 2) or (localizacao[0] == 6 and dir_code == 3) or 
@@ -497,6 +500,7 @@ def compara_dist():
 
 def dist_manteiga():
     global next_dir_code
+
     global distancia_manteiga
     global old_dist #distancia anterior
     global calor
@@ -552,7 +556,7 @@ def dist_manteiga():
 
     except ValueError:
 
-        print("Por favor, insira um número válido.")    
+        print("Por favor, insira um número válido.")
             
     #compara_dist() #não elim   
 
@@ -594,7 +598,8 @@ def manteiga_triangulator():
             for i in range(1,6):
                 for j in range(1,6):
                     if modulo(localizacao[0] - i) + modulo(localizacao[1] - j) == distancia_manteiga:
-                        possible_manteiga.append([i, j])
+                        if not (localizacao[0] == 1 and localizacao[1] == 1):
+                            possible_manteiga.append([i, j])
         else:
             print("not first")
             for i, element in enumerate(possible_manteiga):
@@ -848,7 +853,10 @@ while True:
     contador_rondas += 1
     old_dist = distancia_manteiga
     if localizacao_bolor == localizacao_torradeira:
-        print("Bolor foi queimado!")
+        if localizacao_bolor == localizacao:
+            print("Bolor ganhou!")
+        else:
+            print("Bolor foi queimado!")
         break
     if localizacao_manteiga == localizacao_bolor:
         #print("A manteiga foi comida")
