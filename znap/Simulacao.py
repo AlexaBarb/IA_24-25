@@ -51,7 +51,7 @@ def deteta_manteiga():
     if  localizacao_manteiga == localizacao:
         print("O robô esta: " + str(localizacao))
         print("Manteiga encontrada")
-        sys.exit()
+        sys.exit()  
     elif localizacao_manteiga == localizacao_bolor:
         print("Derrotado pelo bolor")
         sys.exit()    
@@ -76,13 +76,12 @@ def deteta_torradeira():
     global localizacao_torradeira
     global ja_esperou
     if  (localizacao == localizacao_torradeira and ja_esperou):
-        localizacao_torradeira = [0,0]
-        contador_rondas+=1
+        #localizacao_torradeira = [0,0]
+        #contador_rondas+=1
         ja_esperou = False
         print("A torradeira está a tostar homem tosta")
         return False
-    elif not ja_esperou:
-        ja_esperou = True
+    ja_esperou = True
     return True    
         
 #----------------------------------------------fim deteta_torradeira----------------------------------->
@@ -797,7 +796,7 @@ while True:
     else:
         calor = False
     print("************* Ronda: " + str(contador_rondas) + " *************")
-    mostrar_localizacao(localizacao, localizacao_manteiga, localizacao_torradeira)
+   
     if found_torradeira == [0,0]:
         torradeira_onde_andas()
     else:
@@ -821,7 +820,10 @@ while True:
                 #print("Manteigando")
                 print("cheiro: " + str(gps(localizacao_manteiga)))
                 dist_manteiga()
-                compara_dist()
+                if (possible_manteiga != []):
+                    gonna_get_manteiga(possible_manteiga[0])
+                else:
+                    compara_dist()
             else:
                 gonna_get_manteiga(found_manteiga)
                
@@ -845,8 +847,13 @@ while True:
         print("Bolor foi queimado!")
         break
     if localizacao_manteiga == localizacao_bolor:
-        print("A manteiga foi comida")
+        #print("A manteiga foi comida")
+        deteta_manteiga()
         break
+    if contador_rondas >= 25:
+        print("Todos perderam por limite de rondas, sejam mais rapidos (robo e bolor)!")
+        break
+    mostrar_localizacao(localizacao, localizacao_manteiga, localizacao_torradeira)
     #if found_manteiga != [0,0]:
     time.sleep(5)
     print("----------------------------------------------------------------->")
