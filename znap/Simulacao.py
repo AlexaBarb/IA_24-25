@@ -27,6 +27,8 @@ old_dist = 11 #antiga distancia da manteiga
 manteiga = [0,0] 
 torradeira = [0,0]
 barreiras = []
+barreiras_fixas_ao_descer = [[2, 3], [3, 4], [4, 3], [5, 5]]
+barreiras_fixas_a_direita = [[2, 5]]
 #info adquirida robô
 possible_manteiga=[]
 found_manteiga=[0,0]
@@ -40,6 +42,7 @@ os_cheiros_anteriores = []
 for i in range(6):
     for j in range(6):
         posicoes_torradeira.append([i+1,j+1])
+
 
 #---------------------------------------------------fim Inicio------------------------------------------> 
 
@@ -75,7 +78,7 @@ def deteta_torradeira():
     global contador_rondas
     global localizacao_torradeira
     global ja_esperou
-    if  (localizacao == localizacao_torradeira and ja_esperou):
+    if localizacao == localizacao_torradeira and ja_esperou:
         #localizacao_torradeira = [0,0]
         #contador_rondas+=1
         ja_esperou = False
@@ -360,7 +363,7 @@ def mostrar_localizacao(localizacao, localizacao_manteiga, localizacao_torradeir
             if i == x and j == y:
                 linha += "| X "  # Marca a posição especificada com 'X'
             elif i == xb and j == yb:
-                linha += "| B "  # Marca a posição especificada com B
+                linha += "| B "  # Marca a posição especificada com 'B'
             elif i == xm and j == ym:
                 linha += "| M "
             elif i == xt and j == yt:
@@ -475,7 +478,7 @@ def passeando():
 def compara_dist():
     global next_dir_code
     global old_dist
-    print("Distancia anteriror da manteiga: " + str(old_dist))
+    print("Distancia anterior da manteiga: " + str(old_dist))
     '''
     if old_dist < distancia_manteiga:
         print("Caminho mais longe da manteiga")
@@ -494,8 +497,8 @@ def compara_dist():
     preenchePosLegais()
     print("____________________________________________________________Posições Legais: " + str(posLegais))
     next_dir_code = passeando()
-    if ja_tive_aqui_e_nao_gostei(next_dir_code):
-        next_dir_code = passeando()
+    #if ja_tive_aqui_e_nao_gostei(next_dir_code):
+    #   next_dir_code = passeando()
 
     '''
         rand_dir() #da uma direção 
@@ -600,9 +603,22 @@ def barreiras():
     for i in range(5):
         barreiras = []
         if randint(1,2) == 1:
-            barreiras.append([random.randint(1, 5)+0.5, random.randint(1, 6)])
+            barreiras.append([randint(1, 5)+0.5, randint(1, 6)])
         else:
-            barreiras.append([random.randint(1, 6), random.randint(1, 5)+0.5])
+            barreiras.append([randint(1, 6), randint(1, 5)+0.5])
+
+def bigger_than_6():
+    big = modulo(localizacao[0] - i) + modulo(localizacao[1] - j)
+    if big > 6:
+        big = 6
+    return big
+
+def bigger_than_6_2(element):
+    big2 = modulo(localizacao[0] - element[0]) + modulo(localizacao[1] - element[1])
+    if big2 > 6:
+        big2 = 6
+    return big2
+
 
 def manteiga_triangulator():
     print("Entrei no triangulador")
@@ -882,7 +898,6 @@ while True:
         old_dist = distancia_manteiga
     bolor_calculator()
     print("Possiveis posições da manteiga" + str(possible_manteiga))
-    
     contador_rondas += 1
     if localizacao_bolor == localizacao_torradeira:
         if localizacao_bolor == localizacao:
