@@ -51,13 +51,13 @@ for i in range(6):
 #       Função deteta_manteaiga_bolor deteta  manteiga e agarra-a, ou se encontrar o bolor fica triste e desiste
 #------------------------------------------------------------------------------------------------------> 
 def deteta_manteiga():
-    if localizacao_manteiga == localizacao_bolor:
-        print("Derrotado pelo bolor")
-        sys.exit()  
-    elif  localizacao_manteiga == localizacao:
+    if localizacao_manteiga == localizacao:
         print("O robô esta: " + str(localizacao))
         print("Manteiga encontrada")
-        sys.exit()  
+        sys.exit()
+    elif localizacao_manteiga == localizacao_bolor:
+        print("Derrotado pelo bolor")
+        sys.exit()
     
 
 #---------------------------------------------------fim Deteta_agarra_manteiga-------------------------> 
@@ -308,7 +308,7 @@ def andar():
     print("Direção robô:  " + direcao + " code -> " + str(dir_code))
     verifica_se_quer_virar()
 
-    deteta_barreira_1()
+    #deteta_barreira_1()
     
     mudaLocalizacao()
 
@@ -386,7 +386,7 @@ def mostrar_localizacao(localizacao, localizacao_manteiga, localizacao_torradeir
 
          
 # Código para a matriz do bolor
-def bolor_calculator():
+def bolor_calculator(mode):
     global particulas_mas
     global localizacao_bolor
     caminhos = {
@@ -661,7 +661,6 @@ def manteiga_triangulator():
         
 def gonna_get_manteiga(alvo):
     print("gonna get that manteiga")
-    time.sleep(3)
     global next_dir_code
     if localizacao[0] != alvo[0]:
         if localizacao[0] > alvo[0]:
@@ -702,6 +701,36 @@ def gonna_get_manteiga(alvo):
             elif dir_code == 4:
                 next_dir_code = 4
     print("...............................vou ir pa: " + str(next_dir_code))
+    if next_dir_code == 1:  # Turn left (counter-clockwise)
+        change = -1
+    elif next_dir_code == 2:  # No turn (keep the same direction)
+        change = 0
+    elif next_dir_code == 3:  # Turn right (clockwise)
+        change = 1
+    elif next_dir_code == 4:  # Turn 180° (reverse direction)
+        change = 2
+    next_absolute = (dir_code + change - 1) % 4 + 1
+    if not (ver_o_futuro(next_absolute, "next") and ver_o_futuro(next_absolute, "this")):
+        if not did_i_win(next_absolute):
+            next_dir_code = random_menos_este_num(next_dir_code)
+
+def did_i_win(next_absolute):
+    localVirtual = [0, 0]
+    localVirtual[0] = localizacao[0]
+    localVirtual[1] = localizacao[1]
+    if next_absolute == 1:
+        localVirtual[0] -= 1
+    if next_absolute == 2:
+        localVirtual[1] += 1
+    if next_absolute == 3:
+        localVirtual[0] += 1
+    if next_absolute == 4:
+        localVirtual[1] -= 1
+    if localVirtual == found_manteiga:
+        return True
+    return False
+
+
 
 def gps(alvo):
     distancia = abs(localizacao[0] - alvo[0]) + abs(localizacao[1] - alvo[1])
@@ -825,6 +854,49 @@ def manteiga_favoravel():
            manteiga_favoravel_index = i #guarda a menor dist�ncia
     return possible_manteiga[manteiga_favoravel_index] #retorna a posiç�o da manteiga mais perto
 
+def ver_o_futuro(nexta_direcao, mode):
+    print("Tou vendo o futuro...")
+    localVirtual = [0,0]
+    localVirtual[0] = localizacao[0]
+    localVirtual[1] = localizacao[1]
+    if nexta_direcao == 1:
+        localVirtual[0] -= 1
+    elif nexta_direcao == 2:
+        localVirtual[1] += 1
+    elif nexta_direcao == 3:
+        localVirtual[0] += 1
+    elif nexta_direcao == 4:
+        localVirtual[1] -= 1
+    if mode == "next":
+        caminhos = {
+            "norte": abs((localVirtual[0] - (localizacao_bolor[0] - 1))) + abs((localVirtual[1] - localizacao_bolor[1])),
+            "sul": abs((localVirtual[0] - (localizacao_bolor[0] + 1))) + abs((localVirtual[1] - localizacao_bolor[1])),
+            "este": abs((localVirtual[1] - (localizacao_bolor[1] + 1))) + abs((localVirtual[0] - localizacao_bolor[0])),
+            "oeste": abs((localVirtual[1] - (localizacao_bolor[1] - 1))) + abs((localVirtual[0] - localizacao_bolor[0]))
+        }
+    else:
+        caminhos = {
+            "norte": abs((localVirtual[0] - (localizacao_bolor[0]))) + abs((localVirtual[1] - localizacao_bolor[1])),
+            "sul": abs((localVirtual[0] - (localizacao_bolor[0]))) + abs((localVirtual[1] - localizacao_bolor[1])),
+            "este": abs((localVirtual[1] - (localizacao_bolor[1]))) + abs((localVirtual[0] - localizacao_bolor[0])),
+            "oeste": abs((localVirtual[1] - (localizacao_bolor[1]))) + abs((localVirtual[0] - localizacao_bolor[0]))
+        }
+    # print("norte bolor: " + str(caminhos["norte"]))
+    # print("sul bolor: " + str(caminhos["sul"]))
+    # print("este bolor: " + str(caminhos["este"]))
+    # print("oeste bolor: " + str(caminhos["oeste"]))
+    min_local = 999  # menor distancia ao bolor
+    if caminhos["norte"] < min_local:
+        min_local = caminhos["norte"]  # 4
+    if caminhos["sul"] < min_local:  # 6
+        min_local = caminhos["sul"]  # 4
+    if caminhos["este"] < min_local:  # 6
+        min_local = caminhos["este"]  # 4
+    if caminhos["oeste"] < min_local:  # 4
+        min_local = caminhos["oeste"]  # 4
+    if min_local == 0:
+        return False
+    return True
 
 #-------------------------------------------------------------------------------------------------------->
 # Ciclo de teste de código
@@ -860,14 +932,14 @@ while True:
         #     print("entrei no else")
         #     time.sleep(2)
         #     print("fui embora")
-        if particulas_mas and not ((abs(localizacao[0] - found_manteiga[0]) + abs(localizacao[1] - found_manteiga[1])) < 2):
-            #print("Fugindo")
-            print("cheirinho: " + str(gps(localizacao_manteiga)))
-            dist_manteiga()
-            manteiga_triangulator()
-            fugir_bolor()
-            time.sleep(5)
-        elif found_manteiga == [0,0]:
+        # if particulas_mas and not ((abs(localizacao[0] - found_manteiga[0]) + abs(localizacao[1] - found_manteiga[1])) < 2):
+        #     #print("Fugindo")
+        #     print("cheirinho: " + str(gps(localizacao_manteiga)))
+        #     dist_manteiga()
+        #     manteiga_triangulator()
+        #     fugir_bolor()
+        #     time.sleep(5)
+        if found_manteiga == [0,0]:
             #print("Manteigando")
             print("cheiro: " + str(gps(localizacao_manteiga)))
             dist_manteiga()
@@ -891,7 +963,7 @@ while True:
         andar()
         print("Localizacao atual do robo: " + str(localizacao))  # imprimi a localização atual
         old_dist = distancia_manteiga
-    bolor_calculator()
+    bolor_calculator("full")
     print("Possiveis posições da manteiga" + str(possible_manteiga))
     contador_rondas += 1
     if localizacao_bolor == localizacao_torradeira:
@@ -907,5 +979,5 @@ while True:
     mostrar_localizacao(localizacao, localizacao_manteiga, localizacao_torradeira)
     if found_manteiga != [0,0]:
         print("Distancia da manteiga vertical: " + str(abs(localizacao[0] - found_manteiga[0])) + " e dist�ncia da manteiga horizontal: " + str(abs(localizacao[1] - found_manteiga[1])))
-    time.sleep(5)
+    time.sleep(3)
     print("----------------------------------------------------------------->")
