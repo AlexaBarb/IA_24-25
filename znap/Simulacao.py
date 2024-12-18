@@ -203,14 +203,10 @@ def deteta_barreira():
 
 
 #-------------------------------------------------------------------------------------------------------->
-#   Função modulo recebe um valor e retorna o valor absoluto 
+#   Função abs recebe um valor e retorna o valor absoluto 
 #-------------------------------------------------------------------------------------------------------->
-def modulo(a):
-    if a < 0:
-        return -a
-    else:
-        return a
-#---------------------------------------------------fim modulo------------------------------------------>
+
+#---------------------------------------------------fim abs------------------------------------------>
 
 
 #------------------------------------------------------------------------------------------------------>
@@ -394,10 +390,10 @@ def bolor_calculator():
     global particulas_mas
     global localizacao_bolor
     caminhos = {
-        "norte" : modulo((localizacao[0] - (localizacao_bolor[0] - 1))) + modulo((localizacao[1] - localizacao_bolor[1])), 
-        "sul" : modulo((localizacao[0] - (localizacao_bolor[0] + 1))) + modulo((localizacao[1] - localizacao_bolor[1])),
-        "este" : modulo((localizacao[1] - (localizacao_bolor[1] + 1))) + modulo((localizacao[0] - localizacao_bolor[0])),
-        "oeste" : modulo((localizacao[1] - (localizacao_bolor[1] - 1))) + modulo((localizacao[0] - localizacao_bolor[0]))
+        "norte" : abs((localizacao[0] - (localizacao_bolor[0] - 1))) + abs((localizacao[1] - localizacao_bolor[1])), 
+        "sul" : abs((localizacao[0] - (localizacao_bolor[0] + 1))) + abs((localizacao[1] - localizacao_bolor[1])),
+        "este" : abs((localizacao[1] - (localizacao_bolor[1] + 1))) + abs((localizacao[0] - localizacao_bolor[0])),
+        "oeste" : abs((localizacao[1] - (localizacao_bolor[1] - 1))) + abs((localizacao[0] - localizacao_bolor[0]))
     }
     #print("norte bolor: " + str(caminhos["norte"]))
     #print("sul bolor: " + str(caminhos["sul"]))
@@ -497,8 +493,8 @@ def compara_dist():
     preenchePosLegais()
     print("____________________________________________________________Posições Legais: " + str(posLegais))
     next_dir_code = passeando()
-    #if ja_tive_aqui_e_nao_gostei(next_dir_code):
-    #   next_dir_code = passeando()
+    if ja_tive_aqui_e_nao_gostei(next_dir_code):
+       next_dir_code = passeando()
 
     '''
         rand_dir() #da uma direção 
@@ -593,8 +589,8 @@ def ja_tive_aqui_e_nao_gostei(nexta_direcao):
         localVirtual[0] += 1
     elif nexta_direcao == 4:
         localVirtual[1] -= 1
-    for i in range(len(os_cheiros_anteriores)):
-        if os_cheiros_anteriores[i] == localVirtual:
+    for k in range(len(os_cheiros_anteriores)):
+        if os_cheiros_anteriores[k] == localVirtual:
             return True
     return False
 #---->
@@ -607,14 +603,14 @@ def barreiras():
         else:
             barreiras.append([randint(1, 6), randint(1, 5)+0.5])
 
-def bigger_than_6():
-    big = modulo(localizacao[0] - i) + modulo(localizacao[1] - j)
+def bigger_than_6(i, j):
+    big = abs(localizacao[0] - i) + abs(localizacao[1] - j)
     if big > 6:
         big = 6
     return big
 
 def bigger_than_6_2(element):
-    big2 = modulo(localizacao[0] - element[0]) + modulo(localizacao[1] - element[1])
+    big2 = abs(localizacao[0] - element[0]) + abs(localizacao[1] - element[1])
     if big2 > 6:
         big2 = 6
     return big2
@@ -627,12 +623,12 @@ def manteiga_triangulator():
     print("Distância anterior da manteiga: " + str(old_dist))
     if old_dist > distancia_manteiga: 
         print("aproximando")
-        if contador_rondas <= 1:
+        if contador_rondas < 1:
             print("first")
             for i in range(1,6):
                 for j in range(1,6):
-                    if bigger_than_6() == distancia_manteiga:
-                        if not (localizacao[0] == 1 and localizacao[1] == 1):
+                    if bigger_than_6(i, j) == distancia_manteiga:
+                        if not (i == 1 and j == 1):
                             possible_manteiga.append([i, j])
         else:
             print("not first")
@@ -702,13 +698,13 @@ def gonna_get_manteiga(alvo):
             elif dir_code == 2:
                 next_dir_code = 2
             elif dir_code == 3:
-                next_dir_distancia_manteigacode = 1
+                next_dir_code = 1
             elif dir_code == 4:
                 next_dir_code = 4
     print("...............................vou ir pa: " + str(next_dir_code))
 
 def gps(alvo):
-    distancia = modulo(localizacao[0] - alvo[0]) + modulo(localizacao[1] - alvo[1])
+    distancia = abs(localizacao[0] - alvo[0]) + abs(localizacao[1] - alvo[1])
     return distancia  
 
             
@@ -841,7 +837,6 @@ print("info dev localização torradeira:" + str(localizacao_torradeira))
 while True:
     if contador_rondas == 0: #calibrar sensor de cor
         print("Calibração concluída.")
-        time.sleep(2)
     if gps(localizacao_torradeira) == 1:
         calor = True
     else:
@@ -865,7 +860,7 @@ while True:
         #     print("entrei no else")
         #     time.sleep(2)
         #     print("fui embora")
-        if particulas_mas and not ((modulo(localizacao[0] - found_manteiga[0]) + modulo(localizacao[1] - found_manteiga[1])) < 2):
+        if particulas_mas and not ((abs(localizacao[0] - found_manteiga[0]) + abs(localizacao[1] - found_manteiga[1])) < 2):
             #print("Fugindo")
             print("cheirinho: " + str(gps(localizacao_manteiga)))
             dist_manteiga()
@@ -905,15 +900,12 @@ while True:
         else:
             print("Bolor foi queimado!")
         break
-    if localizacao_manteiga == localizacao_bolor:
-        #print("A manteiga foi comida")
-        deteta_manteiga()
-        break
+    deteta_manteiga()
     if contador_rondas >= 25:
         print("Todos perderam por limite de rondas, sejam mais rapidos (robo e bolor)!")
         break
     mostrar_localizacao(localizacao, localizacao_manteiga, localizacao_torradeira)
     if found_manteiga != [0,0]:
-        print("Distancia da manteiga vertical: " + str(modulo(localizacao[0] - found_manteiga[0])) + " e dist�ncia da manteiga horizontal: " + str(modulo(localizacao[1] - found_manteiga[1])))
+        print("Distancia da manteiga vertical: " + str(abs(localizacao[0] - found_manteiga[0])) + " e dist�ncia da manteiga horizontal: " + str(abs(localizacao[1] - found_manteiga[1])))
     time.sleep(5)
     print("----------------------------------------------------------------->")
