@@ -11,8 +11,9 @@ from pybricks.robotics import DriveBase
 from pybricks.tools import wait, StopWatch, print
 
 from pybricks.media.ev3dev import SoundFile, ImageFile
-from random import randint
+from random import randint, random
 import sys
+import time
 
 
 #------------------------------------------------------------------------------------------------------> 
@@ -35,7 +36,6 @@ toqueSensor = TouchSensor(Port.S3)
 #                                       Movimento Inicial 
 #------------------------------------------------------------------------------------------------------> 
 
-#def Inicio():
 localizacao = [1,1]     #localização inicial no ambiente [0] ->linha [0] -> coluna
 direcao = "este"        # Diz qual a direçao cardinal que o robô está a apontar
 dir_code = 2             #codigo da direção atual, 1=norte, 2=este, 3=sul e 4=oeste
@@ -45,11 +45,27 @@ next_dir_code = 0         #código da proxima
 #inicialização de variavel para começar o jogo
 contador_rondas = 0
 localizacao_bolor = [6,6] # localização do bolor inicial
-#localizacao_manteiga = [5,2];
 distancia_manteiga = 11 #distancia da manteiga 0 - 10
 old_dist = 11 #antiga distancia da manteiga
-#---------------------------------------------------fim Inicio------------------------------------------> 
+#info matriz
+manteiga = [0,0] 
+torradeira = [0,0]
 
+#info adquirida robô
+possible_manteiga=[]
+found_manteiga=[0,0]
+particulas_mas=False
+posicoes_torradeira = []
+found_torradeira =[0,0]
+calor = False
+ja_esperou = True
+posLegais = []
+os_cheiros_anteriores = []
+for i in range(6):
+    for j in range(6):
+        posicoes_torradeira.append([i+1,j+1])
+
+#---------------------------------------------------fim Inicio------------------------------------------> 
 
 
 #------------------------------------------------------------------------------------------------------>
@@ -104,6 +120,7 @@ def deteta_manteiga():
         ev3.screen.draw_text(25, 35, "Manteiga")
 
 #---------------------------------------------------fim Deteta_agarra_manteiga-------------------------> 
+
 
 #------------------------------------------------------------------------------------------------------> 
 #       Função deteta_bolor deteta se encontrar o bolor fica triste e desiste
