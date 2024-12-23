@@ -6,6 +6,7 @@
 from random import randint, random
 import sys
 import time
+
 from pybricks import ev3brick as brick
 from pybricks.hubs import EV3Brick 
 from pybricks.ev3devices import Motor, UltrasonicSensor, ColorSensor, TouchSensor
@@ -21,7 +22,7 @@ from pybricks.media.ev3dev import SoundFile, ImageFile
 #------------------------------------------------------------------------------------------------------>
 #criação de uma instancia do módulo principal 
 ev3= EV3Brick()
-
+music = SoundFile()
 #inicialização dos motores
 middle_motor= Motor(Port.B)
 right_motor = Motor(Port.C)
@@ -126,18 +127,28 @@ def deteta_bolor(aux):
 #------------------------------------------------------------------------------------------------------> 
 def deteta_torradeira():
     global contador_rondas
-    global localizacao_torradeira
+    global found_torradeira
     global ja_esperou
     ev3.screen.clear()
     ev3.screen.draw_text(10, 20, "A procura da ")
     ev3.screen.draw_text(25, 35, "Torradeira")
-    if colorSensor.color() == Color.RED and ja_esperou:
+    # conta_torradas = 0
+    # while conta_torradas <10 :
+    if colorSensor.color() == Color.WHITE and ja_esperou:
+
+        ev3.speaker.beep(400, 100) 
+        wait(500)
         ja_esperou = False
+        found_torradeira = localizacao
         ev3.screen.clear()
         ev3.screen.draw_text(5, 60, "YAY ta quentinho")
         print("A torradeira está a tostar homem tosta")
+        #print("ja_esperou:" + str(ja_esperou))
+        ev3.speaker.beep(400, 100) 
+        wait(500)
         return False
     ja_esperou = True
+    #print("ja_esperou:" + str(ja_esperou))
     return True    
         
 #----------------------------------------------fim deteta_torradeira----------------------------------->
@@ -402,6 +413,8 @@ def mudaLocalizacao():
 #-------------------------------------------------------------------------------------------------------->
 # Função que atualiza a localização do robô
 #-------------------------------------------------------------------------------------------------------->
+
+
 def mostrar_localizacao(localizacao, found_manteiga, found_torradeira):
     # Obter as coordenadas x e y da posição, ajustando para índice zero
     x, y = localizacao[0] - 1, localizacao[1] - 1
@@ -445,13 +458,13 @@ def mostrar_localizacao(localizacao, found_manteiga, found_torradeira):
 #-------------------------------------------------------------------------------------------------------->
 def calibra_color_sensor(sensor):
     ev3.speaker.beep()  # Som para indicar o início da calibração
-    print("Coloque o sensor sobre uma superfície preta e pressione o botão central.")
+    print("Coloque o sensor sobre uma superfície branca e pressione o botão central.")
     
     # Espera até que o botão central seja pressionado para calibrar o preto
     while not any(ev3.buttons.pressed()):
         wait(10)
-    preto = sensor.reflection()
-    print("Reflexão no preto:", preto)
+    branco = sensor.reflection()
+    print("Reflexão no branco:", branco)
     wait(1000)  # Tempo para ajustar a posição
     ev3.speaker.beep()  # Som para indicar o início da calibração
     print("Coloque o sensor sobre uma superfície branca e pressione o botão central.")
@@ -459,8 +472,8 @@ def calibra_color_sensor(sensor):
     # Espera até que o botão central seja pressionado para calibrar o branco
     while not any(ev3.buttons.pressed()):
         wait(10)
-    branco = sensor.reflection()
-    print("Reflexão no branco:", branco)
+    preto = sensor.reflection()
+    print("Reflexão no preto:", preto)
     
     # Calcula a faixa de calibração
     if branco - preto == 0:
@@ -474,11 +487,14 @@ def get_reflexao_calibrada(sensor, preto, branco):
     calibra_reflexão = (reflexão - preto) / (branco - preto) * 100
     return max(0, min(100, calibra_reflexão))  # Limita a faixa de 0 a 100
 
+
+
 #-------------------------------------------------------------------------------------------------------->
 # Função que deteta a cor e associa ao cheiro de um dos elementos
 #-------------------------------------------------------------------------------------------------------->
-def cheirar():
+#def cheirar():
     global next_dir_code
+    global calor
     print("Cheirando")
     ev3.screen.clear() # Limpar a tela antes de desenhar
     ev3.screen.draw_text(5, 90, "Cheirando")
@@ -486,7 +502,9 @@ def cheirar():
         #verde -> bom caminho
         #castanho -> caminho mau 
         #if toqueSensor.pressed():
-        if colorSensor.color() == Color.BLUE: #sentir calor 
+        if colorSensor.color() == Color.WHITE: #sentir calor 
+            ev3.speaker.beep(400, 100) 
+            calor = True
             print("Torradeira está perto") # 1 casa
             ev3.screen.clear() # Limpar a tela antes de desenhar
             ev3.screen.draw_text(5, 90, "Torradeira está perto")
@@ -611,6 +629,7 @@ def dist_manteiga():
     global next_dir_code
     global distancia_manteiga
     global old_dist #distancia anterior
+    global calor
     print("Cheirando")
     ev3.screen.clear() # Limpar a tela antes de desenhar
     ev3.screen.draw_text(5, 90, "Cheirando")
@@ -636,8 +655,12 @@ def dist_manteiga():
             elif colorSensor.color() == Color.RED:
                 distancia_manteiga = 6
                 break
-        if colorSensor.color() == Color.WHITE:  
+        if colorSensor.color() == Color.BLUE: #sentir calor 
+            ev3.speaker.beep(400, 100) 
+            calor = True
             print("Torradeira está perto") # 1 casa
+            ev3.screen.clear() # Limpar a tela antes de desenhar
+            ev3.screen.draw_text(5, 90, "Torradeira está perto")
             wait(2000)
 
 
@@ -678,8 +701,8 @@ def manteiga_triangulator():
         #print("aproximando")
         if contador_rondas < 1:
             #print("first")
-            for i in range(1,6):
-                for j in range(1,6):
+            for i in range(1,7):
+                for j in range(1,7):
                     if bigger_than_6(i, j) == distancia_manteiga:
                         if not (i == 1 and j == 1):
                             possible_manteiga.append([i, j])
@@ -852,11 +875,10 @@ def torradeira_onde_andas():
     global posicoes_torradeira
     global found_torradeira
     array_temp_torradeira = []
-    if not deteta_torradeira():# o robo está na torradeira
-        found_torradeira = localizacao
-        return 0
+   
     if calor:
         print("tá quentinho")
+
     for i in range(len(posicoes_torradeira)):
         if (not(posicoes_torradeira[i][0] == localizacao_bolor[0] and posicoes_torradeira[i][1] == localizacao_bolor[1]) and 
         not (posicoes_torradeira[i][0] == localizacao[0] and posicoes_torradeira[i][1] == localizacao[1]) and 
@@ -928,6 +950,7 @@ def ver_o_futuro(nexta_direcao, mode):
         return False
     return True
 
+
 #-------------------------------------------------------------------------------------------------------->
 # Ciclo de teste de código
 #-------------------------------------------------------------------------------------------------------->
@@ -944,13 +967,11 @@ while True:
         print("Calibração concluída.")
     print("************* Ronda: " + str(contador_rondas) + " *************")
    
-    if found_torradeira == [0,0]:
-        torradeira_onde_andas()
-    else:
-        print("Posição Torradeira: " + str(found_torradeira))
 
 
     if deteta_torradeira():
+    
+
         if found_manteiga == [0,0]:
             dist_manteiga()
             manteiga_triangulator()
@@ -961,10 +982,17 @@ while True:
         else:
             print("indo para a manteiga")
             gonna_get_manteiga(found_manteiga)
-
+            
         andar()
         print("Localizacao atual do robo: " + str(localizacao))  # imprimi a localização atual
         old_dist = distancia_manteiga
+
+
+    if found_torradeira == [0,0]:
+        torradeira_onde_andas()
+    else:
+        print("Posição Torradeira: " + str(found_torradeira))   
+            
     bolor_calculator()
     print("Possiveis posições da manteiga" + str(possible_manteiga))
     contador_rondas += 1
