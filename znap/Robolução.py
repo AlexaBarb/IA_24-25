@@ -29,7 +29,7 @@ left_motor = Motor(Port.D)
 
 #inicialização do sensor de cor
 colorSensor = ColorSensor(Port.S2)
-distanciaSensor = UltrasonicSensor(Port.S1)
+#distanciaSensor = UltrasonicSensor(Port.S1)
 toqueSensor = TouchSensor(Port.S3)
 
 
@@ -83,6 +83,19 @@ def deteta_manteiga():
     print("A procura da Manteiga")
     if colorSensor.color() == Color.YELLOW:
         print("O robô esta: " + str(localizacao))
+        middle_motor.run(1000)
+        wait(1000)
+        middle_motor.stop()
+        ev3.speaker.beep(400, 100)  # C
+        wait(100)
+        ev3.speaker.beep(400, 100)  # C
+        wait(100)
+        ev3.speaker.beep(470, 100)  # C
+        wait(100)
+        middle_motor.run(-1000)
+        wait(1000)
+        middle_motor.stop()
+        wait(3800)
         left_motor.stop()
         right_motor.stop()
         print("Manteiga encontrada")
@@ -364,7 +377,7 @@ def andar():
 
     deteta_barreira()
     wait(4500)
-    wait(1850)
+    #wait(1850)
     
     left_motor.stop()
     right_motor.stop()
@@ -410,10 +423,6 @@ def mostrar_localizacao(localizacao, found_manteiga, found_torradeira):
         # Linha com conteúdo das células
         linha = ""
         for j in range(6):
-            for k in range(len(barreiras_fixas_a_direita)):
-                if i == barreiras_fixas_a_direita[k][0] and j == barreiras_fixas_a_direita[k][1]:
-                    linha += "/"
-                    continue
             if i == x and j == y:
                 linha += "| X "  # Marca a posição especificada com 'X'
             elif i == xb and j == yb:
@@ -426,17 +435,7 @@ def mostrar_localizacao(localizacao, found_manteiga, found_torradeira):
                 linha += "|   "  # Célula vazia
         linha += "|"  # Final da linha
         print(linha)
-        no_barrier_here = False
-        for k in range(len(barreiras_fixas_ao_descer)):
-            if i == (barreiras_fixas_ao_descer[k][0]-1):
-                linha_aqui = ""
-                linha_aqui += "____" * (barreiras_fixas_ao_descer[k][1]-1)
-                linha_aqui += "****"
-                linha_aqui += "____" * (6-barreiras_fixas_ao_descer[k][1])
-                print(linha_aqui)
-                no_barrier_here = True
-        if not no_barrier_here:
-            print(" _   " * 6)
+        print(" _   " * 6)
     if x == xb and y == yb:
         deteta_bolor(True)
     # Linha inferior das células
@@ -487,7 +486,7 @@ def cheirar():
         #verde -> bom caminho
         #castanho -> caminho mau 
         #if toqueSensor.pressed():
-        if colorSensor.color() == Color.WHITE: #sentir calor 
+        if colorSensor.color() == Color.BLUE: #sentir calor 
             print("Torradeira está perto") # 1 casa
             ev3.screen.clear() # Limpar a tela antes de desenhar
             ev3.screen.draw_text(5, 90, "Torradeira está perto")
@@ -671,21 +670,21 @@ def bigger_than_6_2(element):
 
 
 def manteiga_triangulator():
-    print("Entrei no triangulador")
+    #print("Entrei no triangulador")
     global possible_manteiga
     global found_manteiga
     print("Distância anterior da manteiga: " + str(old_dist))
     if old_dist > distancia_manteiga: 
-        print("aproximando")
+        #print("aproximando")
         if contador_rondas < 1:
-            print("first")
+            #print("first")
             for i in range(1,6):
                 for j in range(1,6):
                     if bigger_than_6(i, j) == distancia_manteiga:
                         if not (i == 1 and j == 1):
                             possible_manteiga.append([i, j])
         else:
-            print("not first")
+            #print("not first")
             for i, element in enumerate(possible_manteiga):
                 if bigger_than_6_2(element) != distancia_manteiga:
                     possible_manteiga.pop(i)
@@ -713,7 +712,7 @@ def manteiga_triangulator():
     return False
         
 def gonna_get_manteiga(alvo):
-    print("gonna get that manteiga")
+    #print("gonna get that manteiga")
     global next_dir_code
     if localizacao[0] != alvo[0]:
         if localizacao[0] > alvo[0]:
@@ -873,7 +872,7 @@ def torradeira_onde_andas():
                     array_temp_torradeira.append(posicoes_torradeira[i])
         
     
-    print("Posições torradeira: " + str(posicoes_torradeira))            
+    #print("Posições torradeira: " + str(posicoes_torradeira))            
     
     posicoes_torradeira = array_temp_torradeira
 
@@ -890,7 +889,7 @@ def manteiga_favoravel():
     return possible_manteiga[manteiga_favoravel_index] #retorna a posiç�o da manteiga mais perto
 
 def ver_o_futuro(nexta_direcao, mode):
-    print("Tou vendo o futuro...")
+    #print("Tou vendo o futuro...")
     localVirtual = [0,0]
     localVirtual[0] = localizacao[0]
     localVirtual[1] = localizacao[1]
