@@ -990,8 +990,8 @@ while True:
 
     if found_torradeira == [0,0]:
         torradeira_onde_andas()
-    else:
-        print("Posição Torradeira: " + str(found_torradeira))   
+    #else:
+        #print("Posição Torradeira: " + str(found_torradeira))   
             
     bolor_calculator()
     print("Possiveis posições da manteiga" + str(possible_manteiga))
